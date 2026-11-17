@@ -16,6 +16,11 @@ workflows:
           npx cap sync ios
       - name: Compila App iOS (senza firma per test)
         script: |
-          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath build
+          if [ -f "ios/App/Podfile" ]; then
+            cd ios/App && pod install && cd ../..
+            xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath build
+          else
+            xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath build
+          fi
     artifacts:
       - build/Build/Products/Debug-iphonesimulator/*.app
