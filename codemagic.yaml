@@ -6,6 +6,9 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.tuonome.athletehub # <-- METTI QUI IL TUO BUNDLE ID REALE
       node: latest
       xcode: latest
       cocoapods: default
@@ -16,13 +19,24 @@ workflows:
       - name: Sincronizza Capacitor iOS
         script: |
           npx cap sync ios
-      - name: Compila App iOS (senza firma per test)
+      - name: Installa CocoaPods (se presente)
         script: |
           if [ -f "ios/App/Podfile" ]; then
-            cd ios/App && pod install && cd ../..
-            xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath build
+            cd ios/App && pod install
+          fi
+      - name: Imposta profili di firma su Xcode
+        script: |
+          xcode-project use-profiles
+      - name: Compila e impacchetta App iOS (.ipa)
+        script: |
+          if [ -f "ios/App/App.xcworkspace" ]; then
+            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
           else
-            xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath build
+            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
           fi
     artifacts:
-      - build/Build/Products/Debug-iphonesimulator/*.app
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
