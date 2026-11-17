@@ -6,10 +6,8 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.athletehub.app
-        automatic: true
+      vars:
+        BUNDLE_ID: "com.athletehub.app"
       node: latest
       xcode: latest
       cocoapods: default
@@ -25,8 +23,13 @@ workflows:
           if [ -f "ios/App/Podfile" ]; then
             cd ios/App && pod install
           fi
-      - name: Imposta profili di firma su Xcode
+      - name: Scarica o crea certificato e profilo Apple
         script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
           xcode-project use-profiles
       - name: Compila e impacchetta App iOS (.ipa)
         script: |
