@@ -8,7 +8,7 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.tuonome.athletehub # <-- METTI QUI IL TUO BUNDLE ID REALE
+        bundle_identifier: com.athletehub.app
       node: latest
       xcode: latest
       cocoapods: default
