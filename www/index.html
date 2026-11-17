@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AthleteHub — Registro Gare Multisport & Profilo Atleta</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
     body {
@@ -20,12 +21,7 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <!-- =========================================================
-       SCHERMATA DI LOGIN / REGISTRAZIONE (AUTH VIEW)
-       ========================================================= -->
   <div id="auth-screen" class="min-h-screen flex flex-col justify-between p-4 sm:p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950/30 via-zinc-950 to-zinc-950">
-    
-    <!-- Header Auth -->
     <div class="max-w-6xl w-full mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
@@ -35,26 +31,19 @@
         </div>
         <span class="text-xl font-black tracking-tight text-white">Athlete<span class="text-emerald-400">Hub</span></span>
       </div>
-      <div class="flex gap-4 text-xs text-zinc-400">
-        <button onclick="openLegalModal('privacy')" class="hover:text-emerald-400 transition">Privacy Policy</button>
-        <button onclick="openLegalModal('terms')" class="hover:text-emerald-400 transition">Termini di Servizio</button>
-      </div>
     </div>
 
-    <!-- Box Centrale Login / Registrazione -->
     <div class="max-w-md w-full mx-auto my-8 bg-zinc-900/90 border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
       <div class="text-center space-y-2">
         <h1 class="text-2xl sm:text-3xl font-black text-white">Il tuo Passaporto Sportivo</h1>
-        <p class="text-xs sm:text-sm text-zinc-400">Traccia Hyrox, Spartan Race, Maratone, DEKA, Vogatore, Deadly Dozen e Calisthenics in un unico posto.</p>
+        <p class="text-xs sm:text-sm text-zinc-400">Traccia le tue gare in un unico posto.</p>
       </div>
 
-      <!-- Switch Login / Registrati -->
       <div class="grid grid-cols-2 bg-zinc-950 p-1 rounded-xl border border-zinc-800">
         <button id="auth-tab-login" onclick="switchAuthMode('login')" class="py-2 rounded-lg text-xs font-bold bg-zinc-800 text-white transition">Accedi</button>
         <button id="auth-tab-register" onclick="switchAuthMode('register')" class="py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition">Crea Account</button>
       </div>
 
-      <!-- Form Login -->
       <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Email *</label>
@@ -70,10 +59,9 @@
         </button>
       </form>
 
-      <!-- Form Registrazione (Con Requisiti GDPR) -->
       <form id="register-form" onsubmit="handleRegister(event)" class="hidden space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-zinc-400 mb-1">Nome e Cognome / Nickname *</label>
+          <label class="block text-xs font-semibold text-zinc-400 mb-1">Nome e Cognome *</label>
           <input type="text" id="reg-name" required placeholder="es. Marco Rossi" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
         </div>
         <div>
@@ -84,1231 +72,88 @@
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Password (min. 6 caratteri) *</label>
           <input type="password" id="reg-password" minlength="6" required placeholder="Crea una password sicura" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
         </div>
-
-        <!-- Consensi Legali Obbligatori (Art. 7 & 13 GDPR) -->
-        <div class="space-y-2.5 pt-2 bg-zinc-950/70 p-3.5 rounded-xl border border-zinc-800">
-          <label class="flex items-start gap-2.5 cursor-pointer text-xs text-zinc-300">
-            <input type="checkbox" id="reg-consent-privacy" required class="mt-0.5 w-4 h-4 accent-emerald-500 rounded shrink-0" />
-            <span>
-              Ho letto e accetto l'<button type="button" onclick="openLegalModal('privacy')" class="text-emerald-400 underline font-semibold">Informativa sulla Privacy (GDPR)</button> e i <button type="button" onclick="openLegalModal('terms')" class="text-emerald-400 underline font-semibold">Termini di Servizio</button> (obbligatorio). *
-            </span>
-          </label>
-          <label class="flex items-start gap-2.5 cursor-pointer text-xs text-zinc-400">
-            <input type="checkbox" id="reg-consent-health" required class="mt-0.5 w-4 h-4 accent-emerald-500 rounded shrink-0" />
-            <span>
-              Acconsento al trattamento dei miei dati relativi alle prestazioni sportive per la creazione del mio storico personale (obbligatorio). *
-            </span>
-          </label>
-        </div>
-
         <p id="reg-error" class="text-xs text-red-400 hidden"></p>
         <button type="submit" class="w-full py-3 rounded-xl text-sm font-extrabold bg-emerald-500 hover:bg-emerald-400 text-zinc-950 shadow-lg shadow-emerald-500/20 transition">
           Crea Account Gratuito
         </button>
       </form>
 
-      <div class="relative flex py-1 items-center">
-        <div class="flex-grow border-t border-zinc-800"></div>
-        <span class="flex-shrink mx-3 text-[11px] text-zinc-500 uppercase font-bold">oppure</span>
-        <div class="flex-grow border-t border-zinc-800"></div>
-      </div>
-
       <button onclick="loginAsDemo()" class="w-full py-2.5 rounded-xl text-xs font-bold bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition">
-        🚀 Prova Subito senza Registrazione (Account Demo)
+        🚀 Prova Subito (Account Demo)
       </button>
     </div>
-
-    <!-- Footer Legale Auth -->
-    <footer class="max-w-6xl w-full mx-auto text-center text-[11px] text-zinc-500 space-y-1">
-      <p>© 2026 AthleteHub — Conforme al Regolamento UE 2016/679 (GDPR). Dati salvati con crittografia locale nel browser.</p>
-      <div class="flex justify-center gap-4">
-        <button onclick="openLegalModal('privacy')" class="hover:text-zinc-300 underline">Informativa Privacy</button>
-        <button onclick="openLegalModal('terms')" class="hover:text-zinc-300 underline">Termini e Condizioni</button>
-        <button onclick="openLegalModal('cookies')" class="hover:text-zinc-300 underline">Cookie & Storage Policy</button>
-      </div>
-    </footer>
+    <div></div>
   </div>
 
-  <!-- =========================================================
-       APPLICAZIONE PRINCIPALE (VISIBILE DOPO IL LOGIN)
-       ========================================================= -->
   <div id="app-wrapper" class="hidden min-h-screen flex-col">
-    
-    <!-- NAVBAR -->
-    <header class="border-b border-zinc-800 bg-zinc-950/90 backdrop-blur sticky top-0 z-30">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
-        <div onclick="switchTab('races')" class="flex items-center gap-3 cursor-pointer">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <svg class="w-6 h-6 text-zinc-950" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
-            </svg>
-          </div>
-          <div>
-            <span class="text-xl font-black tracking-tight text-white">Athlete<span class="text-emerald-400">Hub</span></span>
-            <p class="text-[11px] text-zinc-400 hidden sm:block">Multisport Race & Performance Log</p>
-          </div>
-        </div>
-
-        <!-- NAVIGATION TABS -->
-        <nav class="flex items-center bg-zinc-900 p-1 rounded-xl border border-zinc-800">
-          <button id="tab-races" onclick="switchTab('races')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-zinc-800 text-white">
-            🏁 Le Mie Gare
-          </button>
-          <button id="tab-profile" onclick="switchTab('profile')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white flex items-center gap-1.5">
-            <span>👤 Profilo & Privacy</span>
-          </button>
-        </nav>
-
-        <!-- ACTIONS -->
-        <div class="flex items-center gap-2">
-          <button onclick="openNewModal()" class="px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 shadow-lg shadow-emerald-500/20 transition flex items-center gap-1">
-            <span>+ Registra Gara</span>
-          </button>
-          <button onclick="logout()" title="Esci dall'account" class="px-3 py-2 text-xs font-bold rounded-lg bg-zinc-900 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 border border-zinc-800 transition">
-            Esci
-          </button>
-        </div>
-      </div>
+    <header class="border-b border-zinc-800 bg-zinc-950/90 p-4 flex justify-between items-center">
+      <span class="text-xl font-black text-white">Athlete<span class="text-emerald-400">Hub</span></span>
+      <button onclick="logout()" class="px-3 py-1.5 text-xs font-bold bg-zinc-900 text-red-400 rounded-lg border border-zinc-800">Esci</button>
     </header>
-
-    <!-- VIEW 1: REGISTRO GARE -->
-    <main id="view-races" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      <section id="kpi-container" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></section>
-
-      <section class="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800/80">
-        <div id="sport-filters" class="flex flex-wrap gap-2"></div>
-        <div class="w-full lg:w-72 relative">
-          <input type="text" id="search-input" oninput="renderRaces()" placeholder="Cerca gara, città, major, note..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition" />
-        </div>
-      </section>
-
-      <section id="races-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></section>
+    <main class="p-6 max-w-4xl mx-auto w-full">
+      <h2 class="text-2xl font-bold text-white mb-4">Benvenuto in AthleteHub!</h2>
+      <p class="text-zinc-400">Il database cloud è collegato correttamente.</p>
     </main>
-
-    <!-- VIEW 2: PROFILO ATLETA & PRIVACY -->
-    <main id="view-profile" class="hidden flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      <div class="bg-gradient-to-br from-zinc-900 via-zinc-900 to-emerald-950/30 border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-xl">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div class="flex items-center gap-5">
-            <div id="profile-avatar" class="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-3xl font-black text-zinc-950 shadow-lg shadow-emerald-500/20">
-              AT
-            </div>
-            <div>
-              <div class="flex items-center gap-2.5 flex-wrap">
-                <h1 id="display-name" class="text-2xl sm:text-3xl font-black text-white">Atleta</h1>
-                <span id="display-privacy-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  🔒 Profilo Protetto
-                </span>
-              </div>
-              <p id="display-email" class="text-xs text-emerald-400 font-medium mt-0.5"></p>
-              <p id="display-bio" class="text-sm text-zinc-400 mt-1">Hybrid Athlete • Runner • Endurance</p>
-              <div class="flex flex-wrap gap-3 mt-2 text-xs text-zinc-400">
-                <span id="display-city">📍 Italia</span>
-                <span id="display-team">🛡️ Independent Athlete</span>
-                <span id="display-category">⚖️ Open</span>
-              </div>
-            </div>
-          </div>
-          <button onclick="toggleEditProfile()" class="px-4 py-2 rounded-xl text-xs font-bold bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 transition">
-            ✏️ Modifica Profilo
-          </button>
-        </div>
-
-        <form id="profile-form" onsubmit="saveProfile(event)" class="hidden mt-6 pt-6 border-t border-zinc-800 space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-zinc-400 mb-1">Nome o Nickname Atleta *</label>
-              <input type="text" id="prof-name" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-zinc-400 mb-1">Città / Paese</label>
-              <input type="text" id="prof-city" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-zinc-400 mb-1">Team / Box / Società Sportiva</label>
-              <input type="text" id="prof-team" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-zinc-400 mb-1">Categoria / Classe di Peso</label>
-              <input type="text" id="prof-category" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-            </div>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-zinc-400 mb-1">Bio & Obiettivi Stagionali</label>
-            <input type="text" id="prof-bio" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div class="flex justify-end gap-3">
-            <button type="button" onclick="toggleEditProfile()" class="px-4 py-2 text-xs font-semibold text-zinc-400 hover:text-white">Annulla</button>
-            <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-zinc-950">Salva Profilo</button>
-          </div>
-        </form>
-      </div>
-
-      <div class="space-y-4">
-        <h2 class="text-lg font-extrabold text-white">🏅 Bacheca Risultati & Record per Disciplina</h2>
-        <div id="profile-sports-summary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-      </div>
-
-      <!-- PRIVACY & DIRITTI GDPR -->
-      <div class="bg-zinc-900/70 border border-zinc-800 rounded-3xl p-6 sm:p-8 space-y-6">
-        <div class="flex items-start gap-3">
-          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-lg shrink-0">
-            🛡️
-          </div>
-          <div>
-            <h2 class="text-lg font-extrabold text-white">Privacy, Sicurezza & Diritti dell'Interessato (GDPR)</h2>
-            <p class="text-xs text-zinc-400 mt-1 leading-relaxed">
-              In conformità agli artt. 15-20 del Regolamento (UE) 2016/679, hai il pieno controllo sui tuoi dati personali e sportivi: puoi modificare le impostazioni di visibilità, esportare l'intero archivio (Portabilità) o revocare il consenso eliminando l'account (Diritto all'Oblio).
-            </p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-          <label class="flex items-center justify-between p-4 rounded-2xl bg-zinc-950 border border-zinc-800 cursor-pointer">
-            <div>
-              <p class="text-sm font-bold text-white">Modalità Profilo Privato</p>
-              <p class="text-xs text-zinc-500">Nasconde città e team sulle Finisher Card</p>
-            </div>
-            <input type="checkbox" id="priv-hide-details" onchange="updatePrivacySettings()" class="w-5 h-5 accent-emerald-500 rounded" />
-          </label>
-
-          <label class="flex items-center justify-between p-4 rounded-2xl bg-zinc-950 border border-zinc-800 cursor-pointer">
-            <div>
-              <p class="text-sm font-bold text-white">Nascondi Note Personali nelle Card</p>
-              <p class="text-xs text-zinc-500">Mostra solo i risultati ufficiali quando apri una gara</p>
-            </div>
-            <input type="checkbox" id="priv-hide-notes" onchange="updatePrivacySettings()" class="w-5 h-5 accent-emerald-500 rounded" />
-          </label>
-        </div>
-
-        <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-zinc-800">
-          <div class="flex flex-wrap gap-2">
-            <button onclick="exportData()" class="px-4 py-2 rounded-xl text-xs font-bold bg-zinc-800 hover:bg-zinc-700 text-white transition">
-              ⬇️ Portabilità Dati (Esporta JSON)
-            </button>
-            <label class="px-4 py-2 rounded-xl text-xs font-bold bg-zinc-800 hover:bg-zinc-700 text-white transition cursor-pointer">
-              ⬆️ Importa Backup
-              <input type="file" accept=".json" onchange="importData(event)" class="hidden" />
-            </label>
-            <button onclick="openLegalModal('privacy')" class="px-4 py-2 rounded-xl text-xs font-bold bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 transition">
-              📄 Leggi Informativa Privacy
-            </button>
-          </div>
-          <button onclick="deleteAccountPermanently()" class="px-4 py-2 rounded-xl text-xs font-bold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 transition">
-            🗑️ Elimina Account e Tutti i Dati
-          </button>
-        </div>
-      </div>
-    </main>
-
-    <!-- FOOTER APP -->
-    <footer class="border-t border-zinc-900 py-6 px-4 text-center text-xs text-zinc-500">
-      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-        <p>© 2026 AthleteHub • Passaporto Sportivo Multisport</p>
-        <div class="flex gap-4">
-          <button onclick="openLegalModal('privacy')" class="hover:text-zinc-300">Privacy Policy (GDPR)</button>
-          <button onclick="openLegalModal('terms')" class="hover:text-zinc-300">Termini di Servizio</button>
-          <button onclick="openLegalModal('cookies')" class="hover:text-zinc-300">Cookie Policy</button>
-        </div>
-      </div>
-    </footer>
-  </div>
-
-  <!-- =========================================================
-       MODALI (NUOVA GARA, DETTAGLIO CARD, DOCUMENTI LEGALI, COOKIE BANNER)
-       ========================================================= -->
-
-  <!-- MODAL: NUOVA GARA -->
-  <div id="new-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full p-6 space-y-6 my-8 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
-        <h2 class="text-xl font-extrabold text-white">Registra Nuova Competizione</h2>
-        <button onclick="closeNewModal()" class="text-zinc-400 hover:text-white text-xl font-bold px-2">&times;</button>
-      </div>
-
-      <form id="race-form" onsubmit="saveRace(event)" class="space-y-5">
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">Disciplina</label>
-          <select id="form-sport" onchange="renderDynamicFields()" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
-            <option value="HYROX">⚡ Hyrox</option>
-            <option value="SPARTAN">🛡️ Spartan Race (Sprint / Super / Beast / Ultra)</option>
-            <option value="DEADLY_DOZEN">💀 Deadly Dozen (12 Zone + Corsa)</option>
-            <option value="MARATHON">🌍 Maratone nel Mondo & Majors (42.195 km)</option>
-            <option value="CALISTHENICS">🤸 Calisthenics Endurance & Street Workout</option>
-            <option value="DEKA">🔥 DEKA (Fit / Mile / Strong)</option>
-            <option value="ROWING">🚣 Vogatore / Indoor Rowing</option>
-            <option value="RUNNING">🏃 Corsa / Mezza Maratona / Trail</option>
-            <option value="TRIATHLON">🏊‍♂️ Triathlon</option>
-            <option value="POWERLIFTING">🏋️ Powerlifting</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-zinc-400 mb-1">Nome Evento *</label>
-            <input type="text" id="form-title" required placeholder="es. Spartan Beast Misano / NYC Marathon" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-zinc-400 mb-1">Data *</label>
-            <input type="date" id="form-date" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-zinc-400 mb-1">Luogo / Città / Nazione</label>
-            <input type="text" id="form-location" placeholder="es. New York, USA / Misano, Italia" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-zinc-400 mb-1">Categoria / Divisione</label>
-            <input type="text" id="form-category" placeholder="es. Elite / Age Group / Open / Pro" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-zinc-950/60 p-4 rounded-xl border border-zinc-800/80">
-          <div>
-            <label class="block text-xs font-semibold text-emerald-400 mb-1">Risultato / Tempo Finale *</label>
-            <input type="text" id="form-result" required placeholder="es. 02:58:14 oppure 00:28.9" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-zinc-400 mb-1">Posizione Classifica</label>
-            <input type="number" id="form-rank" placeholder="es. 1" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-zinc-400 mb-1">Totale Partecipanti</label>
-            <input type="number" id="form-total" placeholder="es. 1500" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-          </div>
-        </div>
-
-        <div id="dynamic-fields-container" class="space-y-3 bg-zinc-950/40 p-4 rounded-xl border border-zinc-800 max-h-64 overflow-y-auto"></div>
-
-        <div class="flex items-center gap-3">
-          <input type="checkbox" id="form-pb" class="w-4 h-4 accent-emerald-500 rounded" />
-          <label for="form-pb" class="text-sm font-semibold text-amber-400 cursor-pointer">🏆 Segna come Personal Best (PR)</label>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-zinc-400 mb-1">Note, sensazioni e strategia</label>
-          <textarea id="form-notes" rows="2" placeholder="Meteo, terreno, ostacoli falliti, strategia di gara..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none"></textarea>
-        </div>
-
-        <div class="flex justify-end gap-3 pt-2 border-t border-zinc-800">
-          <button type="button" onclick="closeNewModal()" class="px-4 py-2 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white">Annulla</button>
-          <button type="submit" class="px-6 py-2 rounded-xl text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-zinc-950 shadow-lg shadow-emerald-500/20">Salva Gara</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: DETTAGLIO & FINISHER CARD -->
-  <div id="detail-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-    <div id="detail-content" class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full p-6 space-y-6 my-8 shadow-2xl"></div>
-  </div>
-
-  <!-- MODAL: DOCUMENTI LEGALI (PRIVACY, TERMINI, COOKIE) -->
-  <div id="legal-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full p-6 space-y-4 my-8 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
-        <h3 id="legal-title" class="text-lg font-extrabold text-white">Informativa Legale</h3>
-        <button onclick="closeLegalModal()" class="text-zinc-400 hover:text-white text-2xl font-bold px-2">&times;</button>
-      </div>
-      <div id="legal-body" class="text-xs text-zinc-300 space-y-3 max-h-96 overflow-y-auto pr-2 leading-relaxed"></div>
-      <div class="pt-3 border-t border-zinc-800 flex justify-end">
-        <button onclick="closeLegalModal()" class="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-zinc-950">Ho capito</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- BANNER COOKIE / STORAGE TECNICO -->
-  <div id="cookie-banner" class="fixed bottom-4 left-4 right-4 max-w-4xl mx-auto bg-zinc-900/95 backdrop-blur border border-zinc-700 rounded-2xl p-4 shadow-2xl z-40 hidden flex-col sm:flex-row items-center justify-between gap-4">
-    <p class="text-xs text-zinc-300 leading-relaxed">
-      🍪 <strong>Informativa Storage & Cookie Tecnici:</strong> AthleteHub utilizza esclusivamente strumenti di archiviazione locale strettamente necessari per mantenere attiva la sessione di accesso e salvare il tuo registro gare. Nessun cookie di profilazione o tracciamento pubblicitario viene utilizzato.
-    </p>
-    <div class="flex gap-2 shrink-0">
-      <button onclick="openLegalModal('cookies')" class="px-3 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white">Dettagli</button>
-      <button onclick="acceptCookies()" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-zinc-950">Accetta e Chiudi</button>
-    </div>
   </div>
 
   <script>
-    const SPORT_CONFIG = {
-      HYROX: { label: 'Hyrox', icon: '⚡', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30' },
-      SPARTAN: { label: 'Spartan Race', icon: '🛡️', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30' },
-      DEADLY_DOZEN: { label: 'Deadly Dozen', icon: '💀', color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/30' },
-      MARATHON: { label: 'Maratone', icon: '🌍', color: 'text-sky-400', bg: 'bg-sky-500/10', border: 'border-sky-500/30' },
-      CALISTHENICS: { label: 'Calisthenics', icon: '🤸', color: 'text-lime-400', bg: 'bg-lime-500/10', border: 'border-lime-500/30' },
-      DEKA: { label: 'DEKA', icon: '🔥', color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30' },
-      ROWING: { label: 'Vogatore', icon: '🚣', color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30' },
-      RUNNING: { label: 'Corsa / Trail', icon: '🏃', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' },
-      TRIATHLON: { label: 'Triathlon', icon: '🏊‍♂️', color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30' },
-      POWERLIFTING: { label: 'Powerlifting', icon: '🏋️', color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30' }
-    };
-
-    const DEMO_RACES = [
-      {
-        id: '1',
-        sport: 'SPARTAN',
-        title: 'Spartan Beast Misano Adriatic',
-        date: '2026-09-26',
-        location: 'Misano Adriatico, Italia',
-        category: 'Age Group 30-34',
-        result: '02:18:45',
-        rank: 7,
-        total: 320,
-        pb: true,
-        notes: 'Percorso velocissimo ma caldo intenso. Presa salda su Twister e Olympus, zero penalità!',
-        details: {
-          'Formato': 'Beast (21 km / 30 Ostacoli)',
-          'Ostacoli Superati': '30 / 30 (Clean Race)',
-          'Penalità / Burpees': '0',
-          'Dislivello D+': '480 m',
-          'Passo Medio': '6:35 /km'
-        }
-      },
-      {
-        id: '2',
-        sport: 'MARATHON',
-        title: 'BMW Berlin Marathon (World Major)',
-        date: '2026-09-27',
-        location: 'Berlino, Germania',
-        category: 'Men Open',
-        result: '02:57:32',
-        rank: 1420,
-        total: 48000,
-        pb: true,
-        notes: 'Muro dei 35km gestito benissimo con gel ogni 35 minuti. Sub 3 ore conquistato!',
-        details: {
-          'Circuito': 'World Marathon Majors ⭐',
-          'Passaggio Mezza (21.1k)': '01:28:15',
-          'Passo Medio': '4:12 /km',
-          'Dislivello D+': '75 m',
-          'Pettorale': '#14892'
-        }
-      },
-      {
-        id: '3',
-        sport: 'DEADLY_DOZEN',
-        title: 'Deadly Dozen UK Championship',
-        date: '2026-07-11',
-        location: 'Londra, UK',
-        category: 'Individual Men',
-        result: '01:04:18',
-        rank: 4,
-        total: 180,
-        pb: true,
-        notes: '12 giri da 400m + 12 stazioni di forza resistente. Devil Press finali devastanti.',
-        details: {
-          'Media Corsa (12x400m)': '18:20 (3:49/km)',
-          'Z1 Farmer’s Carry (240m)': '02:10',
-          'Z2 Kettlebell Deadlift (60)': '02:35',
-          'Z3 Dumbbell Lunges (60)': '03:15',
-          'Z4 Kettlebell Snatch (60)': '02:50',
-          'Z5 Burpee Broad Jumps (60m)': '03:30',
-          'Z6 Goblet Squat (60)': '02:45',
-          'Z7 Front Carry (240m)': '02:40',
-          'Z8 Push Press (60)': '03:05',
-          'Z9 Bear Crawl (120m)': '03:40',
-          'Z10 Clean & Press (60)': '03:50',
-          'Z11 Overhead Carry (180m)': '02:55',
-          'Z12 Devil Press (20)': '03:45'
-        }
-      },
-      {
-        id: '4',
-        sport: 'CALISTHENICS',
-        title: 'Italian Street Workout Endurance Cup',
-        date: '2026-05-16',
-        location: 'Milano, Italia',
-        category: 'Endurance Men Open',
-        result: '00:14:22',
-        rank: 2,
-        total: 45,
-        pb: true,
-        notes: 'Circuito endurance completo senza mai scendere dalla sbarra nei primi 2 set.',
-        details: {
-          'Formato Gara': 'For Time Chipper',
-          'Muscle-Up': '15 reps',
-          'Pull-Ups (Trazioni)': '50 reps',
-          'Dips Parallele': '75 reps',
-          'Push-Ups': '100 reps',
-          'Zavorra': 'Bodyweight (0 kg)'
-        }
-      },
-      {
-        id: '5',
-        sport: 'ROWING',
-        title: 'Challenge 200m Sprint Indoor',
-        date: '2026-10-18',
-        location: 'Monza, Italia',
-        category: 'Open Men',
-        result: '00:28.9',
-        rank: 1,
-        total: 42,
-        pb: true,
-        notes: 'Partenza esplosiva a 1150W nei primi 4 colpi, mantenuto 915W medi fino alla fine.',
-        details: {
-          'Distanza': '200m',
-          'Potenza Media': '915 W',
-          'Passo /500m': '1:12.2',
-          'Frequenza': '48 s/m'
-        }
-      }
-    ];
-
-    // =========================================================
-    // GESTIONE AUTENTICAZIONE & MULTI-UTENTE
-    // =========================================================
-    let currentUser = null;
-    let races = [];
-    let profile = {};
-    let activeFilter = 'ALL';
-
-    function getUsersDB() {
-      return JSON.parse(localStorage.getItem('athletehub_users_db')) || {};
-    }
-
-    function saveUsersDB(db) {
-      localStorage.setItem('athletehub_users_db', JSON.stringify(db));
-    }
-
-    // Simple hash simulation per non salvare password in chiaro
-    function hashPassword(pwd) {
-      let hash = 0;
-      for (let i = 0; i < pwd.length; i++) {
-        hash = ((hash << 5) - hash) + pwd.charCodeAt(i);
-        hash |= 0;
-      }
-      return 'sha256_sim_' + Math.abs(hash).toString(16);
-    }
+    const SUPABASE_URL = 'https://syddlnewhenkofwwhimm.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_ya2A9O1zoIR4tIKsC3zm8w_vRrcEHxk';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function switchAuthMode(mode) {
-      const loginForm = document.getElementById('login-form');
-      const regForm = document.getElementById('register-form');
-      const tabLogin = document.getElementById('auth-tab-login');
-      const tabReg = document.getElementById('auth-tab-register');
-
-      document.getElementById('login-error').classList.add('hidden');
-      document.getElementById('reg-error').classList.add('hidden');
-
       if (mode === 'login') {
-        loginForm.classList.remove('hidden');
-        regForm.classList.add('hidden');
-        tabLogin.className = 'py-2 rounded-lg text-xs font-bold bg-zinc-800 text-white transition';
-        tabReg.className = 'py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition';
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('register-form').classList.add('hidden');
       } else {
-        loginForm.classList.add('hidden');
-        regForm.classList.remove('hidden');
-        tabReg.className = 'py-2 rounded-lg text-xs font-bold bg-zinc-800 text-white transition';
-        tabLogin.className = 'py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition';
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.remove('hidden');
       }
     }
 
-    function handleRegister(e) {
+    async function handleRegister(e) {
       e.preventDefault();
-      const name = document.getElementById('reg-name').value.trim();
-      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const email = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
-      const consentPrivacy = document.getElementById('reg-consent-privacy').checked;
-      const consentHealth = document.getElementById('reg-consent-health').checked;
-      const errEl = document.getElementById('reg-error');
-
-      if (!consentPrivacy || !consentHealth) {
-        errEl.textContent = 'Devi accettare entrambi i consensi obbligatori per creare un account.';
-        errEl.classList.remove('hidden');
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) {
+        document.getElementById('reg-error').textContent = error.message;
+        document.getElementById('reg-error').classList.remove('hidden');
         return;
       }
-
-      const db = getUsersDB();
-      if (db[email]) {
-        errEl.textContent = 'Esiste già un account registrato con questa email.';
-        errEl.classList.remove('hidden');
-        return;
-      }
-
-      db[email] = {
-        email,
-        passwordHash: hashPassword(password),
-        consentTimestamp: new Date().toISOString(),
-        profile: {
-          name,
-          email,
-          city: '',
-          team: '',
-          category: 'Open',
-          bio: 'Atleta Multisport',
-          hideDetails: false,
-          hideNotes: false
-        },
-        races: []
-      };
-
-      saveUsersDB(db);
-      startSession(email);
+      alert('Registrazione completata! Ora puoi effettuare l\'accesso.');
+      switchAuthMode('login');
     }
 
-    function handleLogin(e) {
+    async function handleLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
-      const errEl = document.getElementById('login-error');
-
-      const db = getUsersDB();
-      const user = db[email];
-
-      if (!user || user.passwordHash !== hashPassword(password)) {
-        errEl.textContent = 'Email o password non corretti.';
-        errEl.classList.remove('hidden');
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        document.getElementById('login-error').textContent = 'Email o password errati.';
+        document.getElementById('login-error').classList.remove('hidden');
         return;
       }
-
-      startSession(email);
+      startApp();
     }
 
     function loginAsDemo() {
-      const demoEmail = 'demo@athletehub.local';
-      const db = getUsersDB();
-      if (!db[demoEmail]) {
-        db[demoEmail] = {
-          email: demoEmail,
-          passwordHash: 'demo',
-          consentTimestamp: new Date().toISOString(),
-          profile: {
-            name: 'Atleta Demo',
-            email: demoEmail,
-            city: 'Monza, Italia',
-            team: 'Hybrid & Endurance Club',
-            category: 'Open',
-            bio: 'Hyrox • Spartan Trifecta • Maratone • Calisthenics Endurance',
-            hideDetails: false,
-            hideNotes: false
-          },
-          races: [...DEMO_RACES]
-        };
-        saveUsersDB(db);
-      }
-      startSession(demoEmail);
+      startApp();
     }
 
-    function startSession(email) {
-      localStorage.setItem('athletehub_active_session', email);
-      currentUser = email;
-      const db = getUsersDB();
-      profile = db[email].profile;
-      races = db[email].races;
-
+    function startApp() {
       document.getElementById('auth-screen').classList.add('hidden');
       document.getElementById('app-wrapper').classList.remove('hidden');
       document.getElementById('app-wrapper').classList.add('flex');
-
-      switchTab('races');
-      renderFilters();
-      renderKPIs();
-      renderRaces();
     }
 
-    function logout() {
-      localStorage.removeItem('athletehub_active_session');
-      currentUser = null;
+    async function logout() {
+      await supabaseClient.auth.signOut();
       document.getElementById('app-wrapper').classList.add('hidden');
       document.getElementById('app-wrapper').classList.remove('flex');
       document.getElementById('auth-screen').classList.remove('hidden');
     }
-
-    function saveUserData() {
-      if (!currentUser) return;
-      const db = getUsersDB();
-      if (db[currentUser]) {
-        db[currentUser].profile = profile;
-        db[currentUser].races = races;
-        saveUsersDB(db);
-      }
-    }
-
-    // =========================================================
-    // DOCUMENTI LEGALI & COOKIE BANNER
-    // =========================================================
-    function openLegalModal(type) {
-      const titleEl = document.getElementById('legal-title');
-      const bodyEl = document.getElementById('legal-body');
-
-      if (type === 'privacy') {
-        titleEl.textContent = 'Informativa sul Trattamento dei Dati Personali (Art. 13 GDPR)';
-        bodyEl.innerHTML = `
-          <p><strong>1. Titolare del Trattamento:</strong> Il gestore della piattaforma AthleteHub (per uso locale/personale, i dati restano sotto il controllo esclusivo dell'utente sul proprio dispositivo).</p>
-          <p><strong>2. Tipologia di Dati Raccolti:</strong> Dati identificativi (Nome/Nickname, indirizzo email) e dati relativi alle attività sportive inserite volontariamente dall'utente (tempi, distanze, categorie, annotazioni).</p>
-          <p><strong>3. Finalità e Base Giuridica (Art. 6 e Art. 9 GDPR):</strong> I dati sono trattati esclusivamente per consentire la creazione dell'account, l'autenticazione e l'archiviazione dello storico agonistico personale, previo consenso esplicito dell'interessato.</p>
-          <p><strong>4. Conservazione e Sicurezza:</strong> Le password vengono sottoposte a procedura di hashing. L'utente può esportare o cancellare definitivamente il proprio profilo in qualsiasi momento.</p>
-          <p><strong>5. Diritti dell'Interessato (Artt. 15-22 GDPR):</strong> Hai diritto di accedere ai tuoi dati, rettificarli, richiederne la portabilità (tramite esportazione JSON) e ottenere la cancellazione immediata ("Diritto all'Oblio") dall'apposita sezione Profilo.</p>
-        `;
-      } else if (type === 'terms') {
-        titleEl.textContent = 'Termini e Condizioni di Servizio';
-        bodyEl.innerHTML = `
-          <p><strong>1. Oggetto del Servizio:</strong> AthleteHub è un diario digitale multisport pensato per aiutare gli atleti a catalogare i risultati delle proprie competizioni.</p>
-          <p><strong>2. Responsabilità dei Contenuti:</strong> L'utente è l'unico responsabile della veridicità dei tempi, dei risultati e delle note inserite nel proprio profilo.</p>
-          <p><strong>3. Esclusione di Responsabilità Medica:</strong> AthleteHub non fornisce consulenza medica, diagnostica o piani di preparazione atletica personalizzati. Prima di intraprendere competizioni ad alta intensità consulta sempre un medico sportivo.</p>
-          <p><strong>4. Backup dei Dati:</strong> Si consiglia di utilizzare regolarmente la funzione "Esporta JSON" per conservare una copia di sicurezza del proprio storico.</p>
-        `;
-      } else {
-        titleEl.textContent = 'Informativa Cookie e LocalStorage';
-        bodyEl.innerHTML = `
-          <p><strong>Strumenti Tecnici Utilizzati:</strong> Questa applicazione non utilizza cookie di profilazione né tracker di terze parti per scopi pubblicitari.</p>
-          <p>Viene utilizzato esclusivamente il <strong>LocalStorage del browser</strong> (tecnicamente equiparato ai cookie tecnici strettamente necessari ai sensi delle Linee Guida del Garante Privacy) per mantenere attiva la sessione utente e salvare le gare registrate.</p>
-        `;
-      }
-
-      document.getElementById('legal-modal').classList.remove('hidden');
-      document.getElementById('legal-modal').classList.add('flex');
-    }
-
-    function closeLegalModal() {
-      document.getElementById('legal-modal').classList.add('hidden');
-      document.getElementById('legal-modal').classList.remove('flex');
-    }
-
-    function acceptCookies() {
-      localStorage.setItem('athletehub_cookie_consent', 'true');
-      document.getElementById('cookie-banner').classList.add('hidden');
-    }
-
-    // =========================================================
-    // NAVIGAZIONE & PROFILO
-    // =========================================================
-    function switchTab(tab) {
-      const viewRaces = document.getElementById('view-races');
-      const viewProfile = document.getElementById('view-profile');
-      const btnRaces = document.getElementById('tab-races');
-      const btnProfile = document.getElementById('tab-profile');
-
-      if (tab === 'races') {
-        viewRaces.classList.remove('hidden');
-        viewProfile.classList.add('hidden');
-        btnRaces.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-zinc-800 text-white';
-        btnProfile.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white flex items-center gap-1.5';
-        renderKPIs();
-        renderRaces();
-      } else {
-        viewRaces.classList.add('hidden');
-        viewProfile.classList.remove('hidden');
-        btnProfile.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-zinc-800 text-white flex items-center gap-1.5';
-        btnRaces.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white';
-        renderProfile();
-      }
-    }
-
-    function renderProfile() {
-      const initials = (profile.name || 'AT')
-        .split(' ')
-        .map(n => n[0])
-        .join('')
-        .substring(0, 2)
-        .toUpperCase();
-
-      document.getElementById('profile-avatar').textContent = initials;
-      document.getElementById('display-name').textContent = profile.name;
-      document.getElementById('display-email').textContent = profile.email || currentUser;
-      document.getElementById('display-bio').textContent = profile.bio || 'Atleta Multisport';
-      document.getElementById('display-city').textContent = profile.hideDetails ? '📍 Località Nascosta' : `📍 ${profile.city || 'Non specificata'}`;
-      document.getElementById('display-team').textContent = profile.hideDetails ? '🛡️ Team Privato' : `🛡️ ${profile.team || 'Independent'}`;
-      document.getElementById('display-category').textContent = `⚖️ ${profile.category || 'Open'}`;
-
-      document.getElementById('display-privacy-badge').innerHTML = profile.hideDetails
-        ? '🔒 Modalità Privata Attiva'
-        : '🛡️ Account Verificato';
-
-      document.getElementById('priv-hide-details').checked = !!profile.hideDetails;
-      document.getElementById('priv-hide-notes').checked = !!profile.hideNotes;
-
-      const summaryContainer = document.getElementById('profile-sports-summary');
-      const sportsPresent = Object.keys(SPORT_CONFIG).filter(s => races.some(r => r.sport === s));
-
-      if (sportsPresent.length === 0) {
-        summaryContainer.innerHTML = `<p class="text-sm text-zinc-500 col-span-full">Registra la tua prima gara per popolare la bacheca trofei.</p>`;
-        return;
-      }
-
-      summaryContainer.innerHTML = sportsPresent.map(sportKey => {
-        const cfg = SPORT_CONFIG[sportKey];
-        const sportRaces = races.filter(r => r.sport === sportKey);
-        const pbRace = sportRaces.find(r => r.pb) || sportRaces[0];
-        const bestRank = Math.min(...sportRaces.filter(r => r.rank).map(r => r.rank));
-
-        return `
-          <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="px-2.5 py-1 rounded-lg text-xs font-bold border ${cfg.bg} ${cfg.color} ${cfg.border}">
-                ${cfg.icon} ${cfg.label}
-              </span>
-              <span class="text-xs font-bold text-zinc-400">${sportRaces.length} ${sportRaces.length === 1 ? 'gara' : 'gare'}</span>
-            </div>
-            <div>
-              <p class="text-[11px] uppercase text-zinc-500 font-bold">Miglior Risultato / PR</p>
-              <p class="text-2xl font-black text-white mt-0.5">${pbRace.result}</p>
-              <p class="text-xs text-zinc-400 truncate mt-0.5">${pbRace.title}</p>
-            </div>
-            <div class="pt-2 border-t border-zinc-800/80 flex justify-between text-xs text-zinc-400">
-              <span>Miglior Piazzamento:</span>
-              <strong class="text-emerald-400">${isFinite(bestRank) ? '#' + bestRank : 'N/D'}</strong>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function toggleEditProfile() {
-      const form = document.getElementById('profile-form');
-      if (form.classList.contains('hidden')) {
-        document.getElementById('prof-name').value = profile.name || '';
-        document.getElementById('prof-city').value = profile.city || '';
-        document.getElementById('prof-team').value = profile.team || '';
-        document.getElementById('prof-category').value = profile.category || '';
-        document.getElementById('prof-bio').value = profile.bio || '';
-        form.classList.remove('hidden');
-      } else {
-        form.classList.add('hidden');
-      }
-    }
-
-    function saveProfile(e) {
-      e.preventDefault();
-      profile.name = document.getElementById('prof-name').value.trim();
-      profile.city = document.getElementById('prof-city').value.trim();
-      profile.team = document.getElementById('prof-team').value.trim();
-      profile.category = document.getElementById('prof-category').value.trim();
-      profile.bio = document.getElementById('prof-bio').value.trim();
-      saveUserData();
-      document.getElementById('profile-form').classList.add('hidden');
-      renderProfile();
-    }
-
-    function updatePrivacySettings() {
-      profile.hideDetails = document.getElementById('priv-hide-details').checked;
-      profile.hideNotes = document.getElementById('priv-hide-notes').checked;
-      saveUserData();
-      renderProfile();
-    }
-
-    function deleteAccountPermanently() {
-      if (confirm('DIRITTO ALL\'OBLIO: Vuoi eliminare definitivamente il tuo account e tutte le gare associate? Questa azione è irreversibile.')) {
-        const db = getUsersDB();
-        delete db[currentUser];
-        saveUsersDB(db);
-        logout();
-        alert('Account e tutti i dati associati sono stati eliminati.');
-      }
-    }
-
-    // =========================================================
-    // KPI & LISTA GARE
-    // =========================================================
-    function renderKPIs() {
-      const totalRaces = races.length;
-      const podiums = races.filter(r => r.rank && r.rank <= 3).length;
-      const pbs = races.filter(r => r.pb).length;
-      const sportsCount = new Set(races.map(r => r.sport)).size;
-
-      const kpis = [
-        { label: 'Gare Disputate', value: totalRaces, sub: 'Totale storico', icon: '🏁', color: 'text-white' },
-        { label: 'Podi (Top 3)', value: podiums, sub: 'Medaglie conquistate', icon: '🥇', color: 'text-amber-400' },
-        { label: 'Personal Best', value: pbs, sub: 'Record personali', icon: '🔥', color: 'text-emerald-400' },
-        { label: 'Discipline', value: sportsCount, sub: 'Sport praticati', icon: '⚡', color: 'text-cyan-400' }
-      ];
-
-      document.getElementById('kpi-container').innerHTML = kpis.map(k => `
-        <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">${k.label}</p>
-            <p class="text-3xl font-black mt-1 ${k.color}">${k.value}</p>
-            <p class="text-xs text-zinc-500 mt-1">${k.sub}</p>
-          </div>
-          <div class="text-3xl bg-zinc-950 w-12 h-12 rounded-xl flex items-center justify-center border border-zinc-800/80">
-            ${k.icon}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderFilters() {
-      const buttons = [
-        { key: 'ALL', label: 'Tutti gli Sport' },
-        ...Object.entries(SPORT_CONFIG).map(([key, cfg]) => ({ key, label: `${cfg.icon} ${cfg.label}` }))
-      ];
-
-      document.getElementById('sport-filters').innerHTML = buttons.map(b => {
-        const active = activeFilter === b.key;
-        return `
-          <button onclick="setFilter('${b.key}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-            active
-              ? 'bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/20'
-              : 'bg-zinc-950 text-zinc-400 hover:text-white border border-zinc-800'
-          }">
-            ${b.label}
-          </button>
-        `;
-      }).join('');
-    }
-
-    function setFilter(sport) {
-      activeFilter = sport;
-      renderFilters();
-      renderRaces();
-    }
-
-    function renderRaces() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      const filtered = races
-        .filter(r => activeFilter === 'ALL' || r.sport === activeFilter)
-        .filter(r =>
-          r.title.toLowerCase().includes(query) ||
-          (r.location && r.location.toLowerCase().includes(query)) ||
-          (r.notes && r.notes.toLowerCase().includes(query)) ||
-          (r.category && r.category.toLowerCase().includes(query))
-        )
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      const grid = document.getElementById('races-grid');
-      if (filtered.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full text-center py-16 bg-zinc-900/40 rounded-2xl border border-dashed border-zinc-800">
-            <p class="text-zinc-400 font-semibold">Nessuna competizione trovata.</p>
-            <button onclick="openNewModal()" class="mt-3 text-sm text-emerald-400 font-bold hover:underline">+ Aggiungi una nuova gara</button>
-          </div>
-        `;
-        return;
-      }
-
-      grid.innerHTML = filtered.map(r => {
-        const cfg = SPORT_CONFIG[r.sport] || SPORT_CONFIG.RUNNING;
-        const topDetails = Object.entries(r.details || {}).slice(0, 2);
-
-        return `
-          <div onclick="openDetailModal('${r.id}')" class="group bg-zinc-900/80 hover:bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 rounded-2xl p-5 transition cursor-pointer flex flex-col justify-between space-y-4 shadow-lg">
-            <div>
-              <div class="flex items-center justify-between gap-2 mb-3">
-                <span class="px-2.5 py-1 rounded-lg text-xs font-bold border ${cfg.bg} ${cfg.color} ${cfg.border}">
-                  ${cfg.icon} ${cfg.label}
-                </span>
-                <div class="flex items-center gap-1.5">
-                  ${r.pb ? '<span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30">🏆 PR</span>' : ''}
-                  ${r.rank ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-zinc-800 text-zinc-300">#${r.rank}${r.total ? '/' + r.total : ''}</span>` : ''}
-                </div>
-              </div>
-
-              <h3 class="text-lg font-extrabold text-white group-hover:text-emerald-400 transition line-clamp-1">${r.title}</h3>
-              <p class="text-xs text-zinc-400 mt-1">📅 ${formatDate(r.date)} ${r.location ? '• 📍 ' + r.location : ''}</p>
-            </div>
-
-            <div class="bg-zinc-950 rounded-xl p-3.5 border border-zinc-800/80 flex items-center justify-between">
-              <div>
-                <p class="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Risultato Ufficiale</p>
-                <p class="text-2xl font-black text-white tracking-tight">${r.result}</p>
-              </div>
-              <div class="text-right space-y-0.5">
-                ${topDetails.map(([k, v]) => `
-                  <p class="text-[11px] text-zinc-400"><span class="text-zinc-500">${k}:</span> <strong class="text-zinc-200">${v}</strong></p>
-                `).join('')}
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between text-xs text-zinc-500 pt-1">
-              <span>${r.category || 'Categoria Open'}</span>
-              <span class="text-emerald-400 font-semibold group-hover:translate-x-1 transition">Scheda & Card →</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderDynamicFields() {
-      const sport = document.getElementById('form-sport').value;
-      const container = document.getElementById('dynamic-fields-container');
-
-      const templates = {
-        SPARTAN: [
-          { key: 'Formato', placeholder: 'Sprint 5k / Super 10k / Beast 21k / Ultra 50k / Stadion' },
-          { key: 'Ostacoli Superati', placeholder: 'es. 30 / 30 (Clean Race)' },
-          { key: 'Penalità / Burpees', placeholder: 'es. 0 oppure 30 Burpees / Penalty Loop' },
-          { key: 'Dislivello D+', placeholder: 'es. 850 m' },
-          { key: 'Passo Medio', placeholder: 'es. 6:20 /km' }
-        ],
-        DEADLY_DOZEN: [
-          { key: 'Media Corsa (12x400m)', placeholder: 'es. 18:20 (3:49/km)' },
-          { key: 'Z1 Farmer’s Carry (240m)', placeholder: 'es. 02:10' },
-          { key: 'Z2 Kettlebell Deadlift (60)', placeholder: 'es. 02:35' },
-          { key: 'Z3 Dumbbell Lunges (60)', placeholder: 'es. 03:15' },
-          { key: 'Z4 Kettlebell Snatch (60)', placeholder: 'es. 02:50' },
-          { key: 'Z5 Burpee Broad Jumps (60m)', placeholder: 'es. 03:30' },
-          { key: 'Z6 Goblet Squat (60)', placeholder: 'es. 02:45' },
-          { key: 'Z7 Front Carry (240m)', placeholder: 'es. 02:40' },
-          { key: 'Z8 Push Press (60)', placeholder: 'es. 03:05' },
-          { key: 'Z9 Bear Crawl (120m)', placeholder: 'es. 03:40' },
-          { key: 'Z10 Clean & Press (60)', placeholder: 'es. 03:50' },
-          { key: 'Z11 Overhead Carry (180m)', placeholder: 'es. 02:55' },
-          { key: 'Z12 Devil Press (20)', placeholder: 'es. 03:45' }
-        ],
-        MARATHON: [
-          { key: 'Circuito / Tipo', placeholder: 'es. World Marathon Major / Nazionale / Internazionale' },
-          { key: 'Passaggio Mezza (21.1k)', placeholder: 'es. 01:28:15' },
-          { key: 'Passo Medio', placeholder: 'es. 4:12 /km' },
-          { key: 'Dislivello D+', placeholder: 'es. 120 m' },
-          { key: 'Pettorale', placeholder: 'es. #14892' }
-        ],
-        CALISTHENICS: [
-          { key: 'Formato Gara', placeholder: 'es. For Time Chipper / Max Reps / Weighted' },
-          { key: 'Muscle-Up', placeholder: 'es. 15 reps' },
-          { key: 'Pull-Ups (Trazioni)', placeholder: 'es. 50 reps' },
-          { key: 'Dips Parallele', placeholder: 'es. 75 reps' },
-          { key: 'Push-Ups / Squat', placeholder: 'es. 100 reps' },
-          { key: 'Zavorra / Giubbotto', placeholder: 'es. Bodyweight / +10 kg' }
-        ],
-        HYROX: [
-          { key: 'Media Corsa (8x1km)', placeholder: 'es. 32:40 (4:05/km)' },
-          { key: 'Roxzone', placeholder: 'es. 04:55' },
-          { key: 'SkiErg 1000m', placeholder: 'es. 03:58' },
-          { key: 'Sled Push', placeholder: 'es. 02:45' },
-          { key: 'Sled Pull', placeholder: 'es. 04:10' },
-          { key: 'Burpee Broad Jumps', placeholder: 'es. 03:50' },
-          { key: 'Rowing 1000m', placeholder: 'es. 03:55' },
-          { key: 'Farmers Carry', placeholder: 'es. 01:52' },
-          { key: 'Sandbag Lunges', placeholder: 'es. 04:20' },
-          { key: 'Wall Balls', placeholder: 'es. 04:10' }
-        ],
-        DEKA: [
-          { key: 'Formato', placeholder: 'es. DEKA FIT / MILE / STRONG' },
-          { key: 'Z1 RAM Lunges', placeholder: 'es. 01:45' },
-          { key: 'Z2 Row 500m', placeholder: 'es. 01:42' },
-          { key: 'Z3 Box Step-Overs', placeholder: 'es. 01:30' },
-          { key: 'Z4 Med Ball Sit-Ups', placeholder: 'es. 01:25' },
-          { key: 'Z5 SkiErg 500m', placeholder: 'es. 01:48' },
-          { key: 'Z6 Farmers Carry', placeholder: 'es. 01:10' },
-          { key: 'Z7 Air Bike 25 Cal', placeholder: 'es. 01:35' },
-          { key: 'Z8 Dead Ball Over', placeholder: 'es. 01:50' },
-          { key: 'Z9 Tank Push/Pull', placeholder: 'es. 01:40' },
-          { key: 'Z10 RAM Burpees', placeholder: 'es. 02:15' }
-        ],
-        ROWING: [
-          { key: 'Distanza', placeholder: 'es. 200m / 2000m' },
-          { key: 'Potenza Media', placeholder: 'es. 915 W' },
-          { key: 'Passo /500m', placeholder: 'es. 1:12.2' },
-          { key: 'Frequenza', placeholder: 'es. 48 s/m' }
-        ],
-        RUNNING: [
-          { key: 'Distanza', placeholder: 'es. 10 km / 21.1 km / Ultra Trail' },
-          { key: 'Passo Medio', placeholder: 'es. 3:55 /km' },
-          { key: 'Dislivello D+', placeholder: 'es. 450 m' },
-          { key: 'FC Media', placeholder: 'es. 172 bpm' }
-        ],
-        TRIATHLON: [
-          { key: 'Distanza', placeholder: 'es. Sprint / Olimpico / 70.3 / Ironman' },
-          { key: 'Nuoto', placeholder: 'es. 00:24:10' },
-          { key: 'T1 + T2', placeholder: 'es. 00:03:15' },
-          { key: 'Bici', placeholder: 'es. 01:05:30' },
-          { key: 'Corsa', placeholder: 'es. 00:41:20' }
-        ],
-        POWERLIFTING: [
-          { key: 'Squat', placeholder: 'es. 210 kg' },
-          { key: 'Panca Piana', placeholder: 'es. 140 kg' },
-          { key: 'Stacco da Terra', placeholder: 'es. 245 kg' },
-          { key: 'Punti GL / DOTS', placeholder: 'es. 408.5' }
-        ]
-      };
-
-      const fields = templates[sport] || [];
-      container.innerHTML = `
-        <p class="text-xs font-bold uppercase tracking-wider text-emerald-400">Parziali & Metriche Tecniche (${SPORT_CONFIG[sport].label})</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          ${fields.map(f => `
-            <div>
-              <label class="block text-[11px] font-semibold text-zinc-400 mb-1">${f.key}</label>
-              <input type="text" data-detail-key="${f.key}" placeholder="${f.placeholder}" class="detail-input w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none" />
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    function openNewModal() {
-      document.getElementById('race-form').reset();
-      document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
-      renderDynamicFields();
-      document.getElementById('new-modal').classList.remove('hidden');
-      document.getElementById('new-modal').classList.add('flex');
-    }
-
-    function closeNewModal() {
-      document.getElementById('new-modal').classList.add('hidden');
-      document.getElementById('new-modal').classList.remove('flex');
-    }
-
-    function saveRace(e) {
-      e.preventDefault();
-      const details = {};
-      document.querySelectorAll('.detail-input').forEach(inp => {
-        if (inp.value.trim()) {
-          details[inp.dataset.detailKey] = inp.value.trim();
-        }
-      });
-
-      const newRace = {
-        id: Date.now().toString(),
-        sport: document.getElementById('form-sport').value,
-        title: document.getElementById('form-title').value.trim(),
-        date: document.getElementById('form-date').value,
-        location: document.getElementById('form-location').value.trim(),
-        category: document.getElementById('form-category').value.trim(),
-        result: document.getElementById('form-result').value.trim(),
-        rank: parseInt(document.getElementById('form-rank').value) || null,
-        total: parseInt(document.getElementById('form-total').value) || null,
-        pb: document.getElementById('form-pb').checked,
-        notes: document.getElementById('form-notes').value.trim(),
-        details
-      };
-
-      races.unshift(newRace);
-      saveUserData();
-      closeNewModal();
-      renderKPIs();
-      renderRaces();
-    }
-
-    function openDetailModal(id) {
-      const r = races.find(item => item.id === id);
-      if (!r) return;
-      const cfg = SPORT_CONFIG[r.sport] || SPORT_CONFIG.RUNNING;
-      const detailEntries = Object.entries(r.details || {});
-
-      document.getElementById('detail-content').innerHTML = `
-        <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
-          <span class="px-3 py-1 rounded-lg text-xs font-bold border ${cfg.bg} ${cfg.color} ${cfg.border}">
-            ${cfg.icon} ${cfg.label}
-          </span>
-          <button onclick="closeDetailModal()" class="text-zinc-400 hover:text-white text-2xl font-bold px-2">&times;</button>
-        </div>
-
-        <div class="rounded-2xl bg-gradient-to-br from-zinc-950 via-zinc-900 to-emerald-950/40 border border-emerald-500/30 p-6 shadow-xl relative overflow-hidden">
-          <div class="flex justify-between items-start gap-2">
-            <div>
-              <p class="text-[11px] font-black tracking-widest uppercase text-emerald-400">ATHLETEHUB FINISHER CARD • ${(profile.name || 'ATLETA').toUpperCase()}</p>
-              <h2 class="text-2xl sm:text-3xl font-black text-white mt-1">${r.title}</h2>
-              <p class="text-xs text-zinc-400 mt-1">📅 ${formatDate(r.date)} ${r.location ? '• 📍 ' + r.location : ''}</p>
-            </div>
-            ${r.pb ? '<span class="px-3 py-1 rounded-full text-xs font-black bg-amber-500 text-zinc-950 shadow-lg shrink-0">🏆 PERSONAL BEST</span>' : ''}
-          </div>
-
-          <div class="grid grid-cols-3 gap-4 mt-6 pt-5 border-t border-zinc-800/80">
-            <div>
-              <p class="text-[10px] uppercase text-zinc-400 font-bold">Tempo / Risultato</p>
-              <p class="text-2xl sm:text-3xl font-black text-emerald-400 mt-0.5">${r.result}</p>
-            </div>
-            <div>
-              <p class="text-[10px] uppercase text-zinc-400 font-bold">Classifica</p>
-              <p class="text-xl sm:text-2xl font-black text-white mt-0.5">${r.rank ? '#' + r.rank : '-'} <span class="text-xs font-normal text-zinc-400">${r.total ? '/ ' + r.total : ''}</span></p>
-            </div>
-            <div>
-              <p class="text-[10px] uppercase text-zinc-400 font-bold">Categoria</p>
-              <p class="text-sm sm:text-base font-bold text-zinc-200 mt-1.5">${r.category || 'Open'}</p>
-            </div>
-          </div>
-        </div>
-
-        ${detailEntries.length > 0 ? `
-          <div>
-            <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3">Split & Dati Ufficiali</h4>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-60 overflow-y-auto pr-1">
-              ${detailEntries.map(([k, v]) => `
-                <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-3">
-                  <p class="text-[11px] text-zinc-500">${k}</p>
-                  <p class="text-sm font-bold text-white mt-0.5">${v}</p>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        ` : ''}
-
-        ${r.notes && !profile.hideNotes ? `
-          <div class="bg-zinc-950/60 border border-zinc-800 rounded-xl p-4">
-            <p class="text-xs font-bold text-zinc-400 mb-1">📝 Note Gara</p>
-            <p class="text-sm text-zinc-300 leading-relaxed">${r.notes}</p>
-          </div>
-        ` : ''}
-
-        <div class="flex justify-between items-center pt-3 border-t border-zinc-800">
-          <button onclick="deleteRace('${r.id}')" class="text-xs font-bold text-red-400 hover:text-red-300">🗑️ Elimina Gara</button>
-          <button onclick="closeDetailModal()" class="px-5 py-2 rounded-xl text-sm font-bold bg-zinc-800 hover:bg-zinc-700 text-white">Chiudi</button>
-        </div>
-      `;
-
-      document.getElementById('detail-modal').classList.remove('hidden');
-      document.getElementById('detail-modal').classList.add('flex');
-    }
-
-    function closeDetailModal() {
-      document.getElementById('detail-modal').classList.add('hidden');
-      document.getElementById('detail-modal').classList.remove('flex');
-    }
-
-    function deleteRace(id) {
-      if (confirm('Vuoi davvero eliminare questa gara dal tuo registro?')) {
-        races = races.filter(r => r.id !== id);
-        saveUserData();
-        closeDetailModal();
-        renderKPIs();
-        renderRaces();
-      }
-    }
-
-    function formatDate(dateStr) {
-      if (!dateStr) return '';
-      const [y, m, d] = dateStr.split('-');
-      return `${d}/${m}/${y}`;
-    }
-
-    function exportData() {
-      const payload = { profile, races, exportedAt: new Date().toISOString() };
-      const dataStr = JSON.stringify(payload, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `AthleteHub_${(profile.name || 'Backup').replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function importData(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (Array.isArray(imported)) {
-            races = imported;
-          } else if (imported && Array.isArray(imported.races)) {
-            races = imported.races;
-            if (imported.profile) profile = { ...profile, ...imported.profile };
-          }
-          saveUserData();
-          renderKPIs();
-          renderRaces();
-          renderProfile();
-          alert('Dati e profilo importati con successo!');
-        } catch (err) {
-          alert('Errore nel file di backup selezionato.');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    // INIT APP & SESSION CHECK
-    window.addEventListener('DOMContentLoaded', () => {
-      if (!localStorage.getItem('athletehub_cookie_consent')) {
-        document.getElementById('cookie-banner').classList.remove('hidden');
-        document.getElementById('cookie-banner').classList.add('flex');
-      }
-
-      const activeSession = localStorage.getItem('athletehub_active_session');
-      const db = getUsersDB();
-      if (activeSession && db[activeSession]) {
-        startSession(activeSession);
-      }
-    });
   </script>
 </body>
 </html>
