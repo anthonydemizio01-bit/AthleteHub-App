@@ -29,10 +29,15 @@ workflows:
           fi
       - name: Crea certificato .p12 dai file caricati
         script: |
+          cd $CM_BUILD_DIR
+          echo "Verifica presenza file nella cartella:"
+          ls -la
+          
           openssl x509 -inform DER -in distribution.cer -out distribution.pem
           openssl pkcs12 -export -out certificate.p12 -inkey private_key.key -in distribution.pem -passout pass:$CERT_PASSWORD
+          
           keychain initialize
-          keychain add-certificates --p12 certificate.p12 --password "$CERT_PASSWORD"
+          app-store-connect add-certificate -p certificate.p12 -w "$CERT_PASSWORD"
       - name: Compila e impacchetta App iOS (.ipa)
         script: |
           if [ -d "ios/App/App.xcworkspace" ]; then
