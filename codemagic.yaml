@@ -1,46 +1,13 @@
 workflows:
   ios-workflow:
-    name: AthleteHub iOS Build
-    integrations:
-      app_store_connect: ChiaveApple
-    max_build_duration: 60
+    name: Genera Chiavi Apple
+    max_build_duration: 15
     instance_type: mac_mini_m2
-    environment:
-      vars:
-        BUNDLE_ID: "com.athletehub.app"
-      node: latest
-      xcode: latest
-      cocoapods: default
     scripts:
-      - name: Installa dipendenze
+      - name: Genera chiave privata e CSR
         script: |
-          npm install
-      - name: Sincronizza Capacitor iOS
-        script: |
-          npx cap sync ios
-      - name: Imposta Bundle ID e Firma Automatica
-        script: |
-          plutil -replace PRODUCT_BUNDLE_IDENTIFIER -string "$BUNDLE_ID" ios/App/App.xcodeproj/project.pbxproj || true
-          sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/g" ios/App/App.xcodeproj/project.pbxproj
-          sed -i '' 's/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g' ios/App/App.xcodeproj/project.pbxproj
-      - name: Installa CocoaPods (se presente)
-        script: |
-          if [ -f "ios/App/Podfile" ]; then
-            cd ios/App && pod install
-          fi
-      - name: Fetch signing files
-        script: |
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE
-      - name: Compila e impacchetta App iOS (.ipa)
-        script: |
-          if [ -d "ios/App/App.xcworkspace" ]; then
-            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
-          else
-            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
-          fi
+          openssl genrsa -out private_key.key 2048
+          openssl req -new -key private_key.key -out CertificateSigningRequest.certSigningRequest -subj "/CN=AthleteHub/C=IT"
     artifacts:
-      - build/ios/ipa/*.ipa
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
+      - private_key.key
+      - CertificateSigningRequest.certSigningRequest
