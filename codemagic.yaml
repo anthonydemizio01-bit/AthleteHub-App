@@ -27,25 +27,35 @@ workflows:
           if [ -f "ios/App/Podfile" ]; then
             cd ios/App && pod install
           fi
-      - name: Crea certificato .p12 dai file caricati
+      - name: Crea certificato .p12 e configura Keychain
         script: |
           cd $CM_BUILD_DIR
           
-          # Converte il file distribution.cer.cer e genera il .p12
           openssl x509 -inform DER -in distribution.cer.cer -out distribution.pem
           openssl pkcs12 -export -out certificate.p12 -inkey private_key.key -in distribution.pem -passout pass:$CERT_PASSWORD
           
-          # Inizializza il keychain e importa il certificato con il tool nativo macOS
           keychain initialize
           KEYCHAIN_PATH=$(security default-keychain | tr -d '"' | xargs)
           security import certificate.p12 -k "$KEYCHAIN_PATH" -P "$CERT_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" "$KEYCHAIN_PATH" || true
       - name: Compila e impacchetta App iOS (.ipa)
         script: |
+          cd $CM_BUILD_DIR
+          # Crea il file export_options.plist richiesto da Xcode per la firma automatica
+          cat <<EOF > /Users/builder/export_options.plist
+          {
+            "method": "app-store",
+            "signingStyle": "automatic",
+            "stripSwiftSymbols": true,
+            "uploadBitcode": false,
+            "uploadSymbols": true
+          }
+          EOF
+          
           if [ -d "ios/App/App.xcworkspace" ]; then
-            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
+            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --export-options-plist /Users/builder/export_options.plist
           else
-            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
+            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App" --export-options-plist /Users/builder/export_options.plist
           fi
     artifacts:
       - build/ios/ipa/*.ipa
