@@ -20,23 +20,17 @@ workflows:
           npx cap sync ios
       - name: Imposta Bundle ID e Firma Automatica
         script: |
-          # Imposta il Bundle ID
           plutil -replace PRODUCT_BUNDLE_IDENTIFIER -string "$BUNDLE_ID" ios/App/App.xcodeproj/project.pbxproj || true
           sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/g" ios/App/App.xcodeproj/project.pbxproj
-          
-          # Imposta la firma su Automatic per evitare conflitti di profili manuali
           sed -i '' 's/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g' ios/App/App.xcodeproj/project.pbxproj
       - name: Installa CocoaPods (se presente)
         script: |
           if [ -f "ios/App/Podfile" ]; then
             cd ios/App && pod install
           fi
-      - name: Configura credenziali automatiche
+      - name: Fetch signing files
         script: |
-          keychain initialize
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE
-          keychain add-certificates
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE
       - name: Compila e impacchetta App iOS (.ipa)
         script: |
           if [ -d "ios/App/App.xcworkspace" ]; then
