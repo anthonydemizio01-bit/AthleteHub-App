@@ -37,7 +37,11 @@ workflows:
           xcode-project use-profiles
       - name: Compila e impacchetta App iOS (.ipa)
         script: |
-          xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --codesign-identity "Apple Distribution"
+          if [ -d "ios/App/App.xcworkspace" ]; then
+            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --codesign-identity "Apple Distribution"
+          else
+            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App" --codesign-identity "Apple Distribution"
+          fi
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
