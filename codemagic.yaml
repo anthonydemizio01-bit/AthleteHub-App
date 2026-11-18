@@ -30,14 +30,16 @@ workflows:
       - name: Crea certificato .p12 dai file caricati
         script: |
           cd $CM_BUILD_DIR
-          echo "Verifica presenza file nella cartella:"
-          ls -la
           
-          openssl x509 -inform DER -in distribution.cer -out distribution.pem
+          # Converte il file distribution.cer.cer e genera il .p12
+          openssl x509 -inform DER -in distribution.cer.cer -out distribution.pem
           openssl pkcs12 -export -out certificate.p12 -inkey private_key.key -in distribution.pem -passout pass:$CERT_PASSWORD
           
+          # Inizializza il keychain e importa il certificato con il tool nativo macOS
           keychain initialize
-          app-store-connect add-certificate -p certificate.p12 -w "$CERT_PASSWORD"
+          KEYCHAIN_PATH=$(security default-keychain | tr -d '"' | xargs)
+          security import certificate.p12 -k "$KEYCHAIN_PATH" -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" "$KEYCHAIN_PATH" || true
       - name: Compila e impacchetta App iOS (.ipa)
         script: |
           if [ -d "ios/App/App.xcworkspace" ]; then
