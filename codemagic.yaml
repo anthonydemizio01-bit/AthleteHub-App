@@ -38,9 +38,9 @@ workflows:
       - name: Compila e impacchetta App iOS (.ipa)
         script: |
           if [ -d "ios/App/App.xcworkspace" ]; then
-            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --codesign-identity "Apple Distribution"
+            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
           else
-            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App" --codesign-identity "Apple Distribution"
+            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
           fi
     artifacts:
       - build/ios/ipa/*.ipa
