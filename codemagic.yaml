@@ -41,15 +41,21 @@ workflows:
       - name: Compila e impacchetta App iOS (.ipa)
         script: |
           cd $CM_BUILD_DIR
-          # Crea il file export_options.plist richiesto da Xcode per la firma automatica
+          
+          # Genera il file export_options.plist in formato XML valido
           cat <<EOF > /Users/builder/export_options.plist
-          {
-            "method": "app-store",
-            "signingStyle": "automatic",
-            "stripSwiftSymbols": true,
-            "uploadBitcode": false,
-            "uploadSymbols": true
-          }
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>signingStyle</key>
+              <string>automatic</string>
+              <key>uploadSymbols</key>
+              <true/>
+          </dict>
+          </plist>
           EOF
           
           if [ -d "ios/App/App.xcworkspace" ]; then
