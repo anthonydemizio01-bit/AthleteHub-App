@@ -1,13 +1,44 @@
 workflows:
   ios-workflow:
-    name: Genera Chiavi Apple
-    max_build_duration: 15
+    name: AthleteHub iOS Build
+    max_build_duration: 60
     instance_type: mac_mini_m2
+    environment:
+      vars:
+        BUNDLE_ID: "com.athletehub.app"
+        CERT_PASSWORD: "Miapassword123!"
+      node: latest
+      xcode: latest
+      cocoapods: default
     scripts:
-      - name: Genera chiave privata e CSR
+      - name: Installa dipendenze
         script: |
-          openssl genrsa -out private_key.key 2048
-          openssl req -new -key private_key.key -out CertificateSigningRequest.certSigningRequest -subj "/CN=AthleteHub/C=IT"
+          npm install
+      - name: Sincronizza Capacitor iOS
+        script: |
+          npx cap sync ios
+      - name: Imposta Bundle ID e Firma Automatica
+        script: |
+          plutil -replace PRODUCT_BUNDLE_IDENTIFIER -string "$BUNDLE_ID" ios/App/App.xcodeproj/project.pbxproj || true
+          sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/g" ios/App/App.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g' ios/App/App.xcodeproj/project.pbxproj
+      - name: Installa CocoaPods (se presente)
+        script: |
+          if [ -f "ios/App/Podfile" ]; then
+            cd ios/App && pod install
+          fi
+      - name: Crea certificato .p12 dai file caricati
+        script: |
+          openssl x509 -inform DER -in distribution.cer -out distribution.pem
+          openssl pkcs12 -export -out certificate.p12 -inkey private_key.key -in distribution.pem -passout pass:$CERT_PASSWORD
+          keychain initialize
+          keychain add-certificates --p12 certificate.p12 --password "$CERT_PASSWORD"
+      - name: Compila e impacchetta App iOS (.ipa)
+        script: |
+          if [ -d "ios/App/App.xcworkspace" ]; then
+            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
+          else
+            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
+          fi
     artifacts:
-      - private_key.key
-      - CertificateSigningRequest.certSigningRequest
+      - build/ios/ipa/*.ipa
