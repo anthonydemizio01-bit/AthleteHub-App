@@ -18,6 +18,10 @@ workflows:
       - name: Sincronizza Capacitor iOS
         script: |
           npx cap sync ios
+      - name: Imposta Bundle ID nel progetto iOS
+        script: |
+          plutil -replace PRODUCT_BUNDLE_IDENTIFIER -string "$BUNDLE_ID" ios/App/App.xcodeproj/project.pbxproj || true
+          sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/g" ios/App/App.xcodeproj/project.pbxproj
       - name: Installa CocoaPods (se presente)
         script: |
           if [ -f "ios/App/Podfile" ]; then
