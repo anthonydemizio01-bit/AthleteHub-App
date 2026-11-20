@@ -46,16 +46,32 @@ workflows:
           # Converte il certificato (supporta sia formato DER che PEM)
           openssl x509 -inform DER -in "$CER_FILE" -out distribution.pem 2>/dev/null || cp "$CER_FILE" distribution.pem
           
+          # Prepara la chiave privata (supporta sia PEM senza password sia protetta da CERT_PASSWORD o file PKCS8)
+          if openssl pkey -in "$KEY_FILE" -noout 2>/dev/null; then
+            openssl pkey -in "$KEY_FILE" -out unlocked_key.pem
+          elif openssl pkey -in "$KEY_FILE" -passin "pass:$CERT_PASSWORD" -noout 2>/dev/null; then
+            openssl pkey -in "$KEY_FILE" -passin "pass:$CERT_PASSWORD" -out unlocked_key.pem
+          elif openssl pkcs12 -in "$KEY_FILE" -nodes -passin pass: -out pkcs12_dump.pem 2>/dev/null; then
+            openssl x509 -in pkcs12_dump.pem -out distribution.pem
+            openssl pkey -in pkcs12_dump.pem -out unlocked_key.pem
+          elif openssl pkcs12 -in "$KEY_FILE" -nodes -passin "pass:$CERT_PASSWORD" -out pkcs12_dump.pem 2>/dev/null; then
+            openssl x509 -in pkcs12_dump.pem -out distribution.pem
+            openssl pkey -in pkcs12_dump.pem -out unlocked_key.pem
+          else
+            echo "ERRORE: Impossibile leggere private_key.key. Controlla che non abbia una password diversa da CERT_PASSWORD o che sia valida."
+            exit 1
+          fi
+          
           # Verifica che chiave privata e certificato appartengano l'uno all'altro
           CERT_MOD=$(openssl x509 -noout -modulus -in distribution.pem | openssl md5)
-          KEY_MOD=$(openssl rsa -noout -modulus -in "$KEY_FILE" | openssl md5)
+          KEY_MOD=$(openssl rsa -noout -modulus -in unlocked_key.pem | openssl md5)
           if [ "$CERT_MOD" != "$KEY_MOD" ]; then
             echo "ERRORE CRITICO: private_key.key NON corrisponde a distribution.cer! Vanno rigenerati insieme su Apple Developer."
             exit 1
           fi
           
-          # Crea il .p12 e lo importa nel portachiavi di login
-          openssl pkcs12 -export -out certificate.p12 -inkey "$KEY_FILE" -in distribution.pem -passout pass:$CERT_PASSWORD
+          # Crea il .p12 pulito e lo importa nel portachiavi di login
+          openssl pkcs12 -export -out certificate.p12 -inkey unlocked_key.pem -in distribution.pem -passout "pass:$CERT_PASSWORD"
           
           KEYCHAIN_PATH="$HOME/Library/Keychains/login.keychain-db"
           security unlock-keychain -p "" "$KEYCHAIN_PATH" || true
