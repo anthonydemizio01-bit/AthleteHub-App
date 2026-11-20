@@ -98,30 +98,48 @@
 
   <script>
     const SUPABASE_URL = 'https://syddlnewhenkofwwhimm.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_ya2A9O1zoIR4tIKsC3zm8w_vRrcEHxk';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5ZGRsbmV3aGVua29md3doaW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4OTg0ODYsImV4cCI6MjExMDQ3NDQ4Nn0.F1SXOSCxbLlcpHZUiz30HcG0QShYJcuwP3KQaDPwZss';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function switchAuthMode(mode) {
+      const loginTab = document.getElementById('auth-tab-login');
+      const registerTab = document.getElementById('auth-tab-register');
       if (mode === 'login') {
         document.getElementById('login-form').classList.remove('hidden');
         document.getElementById('register-form').classList.add('hidden');
+        loginTab.classList.add('bg-zinc-800', 'text-white');
+        loginTab.classList.remove('text-zinc-400');
+        registerTab.classList.remove('bg-zinc-800', 'text-white');
+        registerTab.classList.add('text-zinc-400');
       } else {
         document.getElementById('login-form').classList.add('hidden');
         document.getElementById('register-form').classList.remove('hidden');
+        registerTab.classList.add('bg-zinc-800', 'text-white');
+        registerTab.classList.remove('text-zinc-400');
+        loginTab.classList.remove('bg-zinc-800', 'text-white');
+        loginTab.classList.add('text-zinc-400');
       }
     }
 
     async function handleRegister(e) {
       e.preventDefault();
+      const fullName = document.getElementById('reg-name').value.trim();
       const email = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
-      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      const errEl = document.getElementById('reg-error');
+      errEl.classList.add('hidden');
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName } }
+      });
       if (error) {
-        document.getElementById('reg-error').textContent = error.message;
-        document.getElementById('reg-error').classList.remove('hidden');
+        errEl.textContent = error.message;
+        errEl.classList.remove('hidden');
         return;
       }
-      alert('Registrazione completata! Ora puoi effettuare l\'accesso.');
+      alert('Registrazione completata! Controlla la tua email (se richiesta conferma) o effettua subito l\'accesso.');
       switchAuthMode('login');
     }
 
@@ -129,10 +147,13 @@
       e.preventDefault();
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
+      const errEl = document.getElementById('login-error');
+      errEl.classList.add('hidden');
+
       const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) {
-        document.getElementById('login-error').textContent = 'Email o password errati.';
-        document.getElementById('login-error').classList.remove('hidden');
+        errEl.textContent = 'Email o password errati (oppure conferma prima l\'email).';
+        errEl.classList.remove('hidden');
         return;
       }
       startApp();
@@ -141,19 +162,3 @@
     function loginAsDemo() {
       startApp();
     }
-
-    function startApp() {
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('app-wrapper').classList.remove('hidden');
-      document.getElementById('app-wrapper').classList.add('flex');
-    }
-
-    async function logout() {
-      await supabaseClient.auth.signOut();
-      document.getElementById('app-wrapper').classList.add('hidden');
-      document.getElementById('app-wrapper').classList.remove('flex');
-      document.getElementById('auth-screen').classList.remove('hidden');
-    }
-  </script>
-</body>
-</html>
