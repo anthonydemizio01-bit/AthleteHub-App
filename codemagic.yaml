@@ -123,5 +123,13 @@ workflows:
       - build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
-        api_key: AthleteHub1
+        api_key: |
+          -----BEGIN PRIVATE KEY-----
+          MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgc/HXmpVZS3/s+wqk
+          4SQK3nhErvhgVquueGdUVqNbiJqgCgYIKoZIzj0DAQehRANCAATNsiaIYdyJ/XiC
+          oUzfay3Q4s+qTcsybPhoEFNskO/NmKaMR0MlbFQl+UFg3Pr2cvNNC0AmAIBDaRqt
+          FQ4fANJH
+          -----END PRIVATE KEY-----
+        key_identifier: "5GR5ZC8RX2"
+        issuer_id: "efadcefa-6bc6-4a4c-85b3-1b4fbcd11fb4"
         submit_to_testflight: true
