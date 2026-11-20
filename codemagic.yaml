@@ -37,7 +37,7 @@ workflows:
           echo "Certificato trovato: $CER_FILE"
           echo "Chiave privata trovata: $KEY_FILE"
 
-          if [ -z "$CER_FILE" ] || [ -z "$KEY_FILE" ]; then
+          if [ -z "$CER_FILE" ] \vert{}\vert{} [ -z "$KEY_FILE" ]; then
             echo "ERRORE: Manca distribution.cer o private_key.key!"
             exit 1
           fi
@@ -118,6 +118,4 @@ workflows:
             xcodebuild archive -project "ios/App/App.xcodeproj" -scheme "App" -configuration Release -destination "generic/platform=iOS" -archivePath "$ARCHIVE_PATH" CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="$CERT_HASH" PROVISIONING_PROFILE="$UUID" PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" DEVELOPMENT_TEAM="$TEAM_ID"
           fi
 
-          xcodebuild -exportArchive -archivePath "$ARCHIVE_PATH" -exportOptionsPlist /Users/builder/export_options.plist -exportPath "$CM_BUILD_DIR/build/ios/ipa"
-    artifacts:
-      - build/ios/ipa/*.ipa
+          xcodebuild -exportArchive -archivePath "$ARCHIVE_PATH" -
