@@ -41,17 +41,22 @@ workflows:
           # 2. Installa il file AthleteHub.mobileprovision dalla cartella ios/
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           UUID=$(security cms -D -i ios/AthleteHub.mobileprovision | plutil -extract UUID raw -)
+          PROFILE_NAME=$(security cms -D -i ios/AthleteHub.mobileprovision | plutil -extract Name raw -)
+          TEAM_ID=$(security cms -D -i ios/AthleteHub.mobileprovision | plutil -extract TeamIdentifier.0 raw -)
           cp ios/AthleteHub.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
           
-          # 3. Estrae automaticamente il tuo Team ID dal profilo e lo imposta nel progetto
-          TEAM_ID=$(security cms -D -i ios/AthleteHub.mobileprovision | plutil -extract TeamIdentifier.0 raw -)
+          # 3. Configura firma manuale, Team ID, Identità e Profilo direttamente nel progetto Xcode
           sed -i '' "s/DEVELOPMENT_TEAM = .*;/DEVELOPMENT_TEAM = $TEAM_ID;/g" ios/App/App.xcodeproj/project.pbxproj
           sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' ios/App/App.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_IDENTITY = .*/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" ios/App/App.xcodeproj/project.pbxproj
+          sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = .*/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"Apple Distribution\";/g" ios/App/App.xcodeproj/project.pbxproj
+          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = .*/PROVISIONING_PROFILE_SPECIFIER = \"$PROFILE_NAME\";/g" ios/App/App.xcodeproj/project.pbxproj
       - name: Compila e impacchetta App iOS (.ipa)
         script: |
           cd $CM_BUILD_DIR
           
           UUID=$(security cms -D -i ios/AthleteHub.mobileprovision | plutil -extract UUID raw -)
+          PROFILE_NAME=$(security cms -D -i ios/AthleteHub.mobileprovision | plutil -extract Name raw -)
           TEAM_ID=$(security cms -D -i ios/AthleteHub.mobileprovision | plutil -extract TeamIdentifier.0 raw -)
           
           cat <<EOF > /Users/builder/export_options.plist
@@ -75,9 +80,17 @@ workflows:
           EOF
           
           if [ -d "ios/App/App.xcworkspace" ]; then
-            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --export-options-plist /Users/builder/export_options.plist --archive-flags="-allowProvisioningUpdates CODE_SIGN_IDENTITY='Apple Distribution' PROVISIONING_PROFILE_SPECIFIER='$UUID' DEVELOPMENT_TEAM='$TEAM_ID'"
+            xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --export-options-plist /Users/builder/export_options.plist --archive-flags="-allowProvisioningUpdates CODE_SIGN_IDENTITY='Apple Distribution' PROVISIONING_PROFILE='$UUID' PROVISIONING_PROFILE_SPECIFIER='$PROFILE_NAME' DEVELOPMENT_TEAM='$TEAM_ID'" || {
+              echo "--- DETTAGLIO ERRORE XCODE ---"
+              xcodebuild -workspace "ios/App/App.xcworkspace" -scheme "App" -configuration Release -sdk iphoneos CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="Apple Distribution" PROVISIONING_PROFILE="$UUID" PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" DEVELOPMENT_TEAM="$TEAM_ID" build | grep -E "error:|Signing" -A 3
+              exit 1
+            }
           else
-            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App" --export-options-plist /Users/builder/export_options.plist --archive-flags="-allowProvisioningUpdates CODE_SIGN_IDENTITY='Apple Distribution' PROVISIONING_PROFILE_SPECIFIER='$UUID' DEVELOPMENT_TEAM='$TEAM_ID'"
+            xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App" --export-options-plist /Users/builder/export_options.plist --archive-flags="-allowProvisioningUpdates CODE_SIGN_IDENTITY='Apple Distribution' PROVISIONING_PROFILE='$UUID' PROVISIONING_PROFILE_SPECIFIER='$PROFILE_NAME' DEVELOPMENT_TEAM='$TEAM_ID'" || {
+              echo "--- DETTAGLIO ERRORE XCODE ---"
+              xcodebuild -project "ios/App/App.xcodeproj" -scheme "App" -configuration Release -sdk iphoneos CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="Apple Distribution" PROVISIONING_PROFILE="$UUID" PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" DEVELOPMENT_TEAM="$TEAM_ID" build | grep -E "error:|Signing" -A 3
+              exit 1
+            }
           fi
     artifacts:
       - build/ios/ipa/*.ipa
