@@ -82,6 +82,12 @@ workflows:
           cd "$CM_BUILD_DIR"
           mkdir -p build/ios/ipa
 
+          BUILD_NUM=${PROJECT_BUILD_NUMBER:-2}
+          if [ "$BUILD_NUM" -le 1 ]; then
+            BUILD_NUM=2
+          fi
+          echo "Uso numero di build iOS: $BUILD_NUM"
+
           KEYCHAIN_PATH=$(security default-keychain | tr -d '"' | xargs)
           CERT_HASH=$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" | grep -Eo '[0-9A-F]{40}' | head -n 1)
           UUID=$(security cms -D -i "ios/AthleteHub.mobileprovision" | plutil -extract UUID raw -)
@@ -113,9 +119,9 @@ workflows:
           ARCHIVE_PATH="$CM_BUILD_DIR/build/ios/App.xcarchive"
 
           if [ -d "ios/App/App.xcworkspace" ]; then
-            xcodebuild archive -workspace "ios/App/App.xcworkspace" -scheme "App" -configuration Release -destination "generic/platform=iOS" -archivePath "$ARCHIVE_PATH" CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="$CERT_HASH" PROVISIONING_PROFILE="$UUID" PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" DEVELOPMENT_TEAM="$TEAM_ID"
+            xcodebuild archive -workspace "ios/App/App.xcworkspace" -scheme "App" -configuration Release -destination "generic/platform=iOS" -archivePath "$ARCHIVE_PATH" CURRENT_PROJECT_VERSION="$BUILD_NUM" CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="$CERT_HASH" PROVISIONING_PROFILE="$UUID" PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" DEVELOPMENT_TEAM="$TEAM_ID"
           else
-            xcodebuild archive -project "ios/App/App.xcodeproj" -scheme "App" -configuration Release -destination "generic/platform=iOS" -archivePath "$ARCHIVE_PATH" CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="$CERT_HASH" PROVISIONING_PROFILE="$UUID" PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" DEVELOPMENT_TEAM="$TEAM_ID"
+            xcodebuild archive -project "ios/App/App.xcodeproj" -scheme "App" -configuration Release -destination "generic/platform=iOS" -archivePath "$ARCHIVE_PATH" CURRENT_PROJECT_VERSION="$BUILD_NUM" CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="$CERT_HASH" PROVISIONING_PROFILE="$UUID" PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" DEVELOPMENT_TEAM="$TEAM_ID"
           fi
 
           xcodebuild -exportArchive -archivePath "$ARCHIVE_PATH" -exportOptionsPlist /Users/builder/export_options.plist -exportPath "$CM_BUILD_DIR/build/ios/ipa"
