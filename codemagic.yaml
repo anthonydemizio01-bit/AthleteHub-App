@@ -30,13 +30,19 @@ workflows:
         script: |
           cd $CM_BUILD_DIR
           
-          # 1. Prepara e installa il certificato
+          # 1. Prepara e installa il certificato con chiave privata nel keychain di login
+          KEYCHAIN_PATH="$HOME/Library/Keychains/login.keychain-db"
+          security unlock-keychain -p "" "$KEYCHAIN_PATH" || true
+          security default-keychain -s "$KEYCHAIN_PATH"
+          security set-keychain-settings -t 3600 -u "$KEYCHAIN_PATH"
+          
           openssl x509 -inform DER -in distribution.cer.cer -out distribution.pem
           openssl pkcs12 -export -out certificate.p12 -inkey private_key.key -in distribution.pem -passout pass:$CERT_PASSWORD
-          keychain initialize
-          KEYCHAIN_PATH=$(security default-keychain | tr -d '"' | xargs)
-          security import certificate.p12 -k "$KEYCHAIN_PATH" -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          security import certificate.p12 -k "$KEYCHAIN_PATH" -P "$CERT_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security -A
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" "$KEYCHAIN_PATH" || true
+          
+          # Verifica che la chiave privata sia visibile a codesign
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH" || true
           
           # 2. Installa il file AthleteHub.mobileprovision dalla cartella ios/
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
