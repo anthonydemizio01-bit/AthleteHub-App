@@ -38,21 +38,21 @@ workflows:
           security import certificate.p12 -k "$KEYCHAIN_PATH" -P "$CERT_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" "$KEYCHAIN_PATH" || true
           
-          # 2. Installa il file profile.mobileprovision dalla cartella ios/
+          # 2. Installa il file AthleteHub.mobileprovision dalla cartella ios/
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          UUID=$(security cms -D -i ios/profile.mobileprovision | plutil -extract UUID raw -)
-          cp ios/profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
+          UUID=$(security cms -D -i ios/AthleteHub.mobileprovision | plutil -extract UUID raw -)
+          cp ios/AthleteHub.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
           
           # 3. Estrae automaticamente il tuo Team ID dal profilo e lo imposta nel progetto
-          TEAM_ID=$(security cms -D -i ios/profile.mobileprovision | plutil -extract TeamIdentifier.0 raw -)
+          TEAM_ID=$(security cms -D -i ios/AthleteHub.mobileprovision | plutil -extract TeamIdentifier.0 raw -)
           sed -i '' "s/DEVELOPMENT_TEAM = .*;/DEVELOPMENT_TEAM = $TEAM_ID;/g" ios/App/App.xcodeproj/project.pbxproj
           sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' ios/App/App.xcodeproj/project.pbxproj
       - name: Compila e impacchetta App iOS (.ipa)
         script: |
           cd $CM_BUILD_DIR
           
-          UUID=$(security cms -D -i ios/profile.mobileprovision | plutil -extract UUID raw -)
-          TEAM_ID=$(security cms -D -i ios/profile.mobileprovision | plutil -extract TeamIdentifier.0 raw -)
+          UUID=$(security cms -D -i ios/AthleteHub.mobileprovision | plutil -extract UUID raw -)
+          TEAM_ID=$(security cms -D -i ios/AthleteHub.mobileprovision | plutil -extract TeamIdentifier.0 raw -)
           
           cat <<EOF > /Users/builder/export_options.plist
           <?xml version="1.0" encoding="UTF-8"?>
