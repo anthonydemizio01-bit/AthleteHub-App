@@ -28,6 +28,8 @@
     input[type="date"].uniform-field,
     input[type="text"].uniform-field,
     input[type="number"].uniform-field,
+    input[type="email"].uniform-field,
+    input[type="password"].uniform-field,
     select.uniform-field {
       height: 44px;
       min-height: 44px;
@@ -53,7 +55,7 @@
         <button type="button" id="tab-register" class="py-2.5 rounded-lg text-xs font-bold text-zinc-400">Crea Account</button>
       </div>
 
-      <form id="login-form" class="space-y-3">
+      <form id="login-form" class="space-y-3" novalidate>
         <div>
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Email</label>
           <input type="email" id="login-email" autocomplete="email" placeholder="atleta@esempio.it" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-sm text-white focus:border-emerald-500 focus:outline-none" />
@@ -62,13 +64,12 @@
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Password</label>
           <input type="password" id="login-password" autocomplete="current-password" placeholder="••••••••" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-sm text-white focus:border-emerald-500 focus:outline-none" />
         </div>
-        <p id="login-msg" class="text-xs text-amber-400 hidden"></p>
         <button type="submit" id="btn-login-submit" class="w-full h-11 rounded-xl text-sm font-extrabold bg-emerald-500 active:bg-emerald-400 text-zinc-950">
           Entra in AthleteHub →
         </button>
       </form>
 
-      <form id="register-form" class="hidden space-y-3">
+      <form id="register-form" class="hidden space-y-3" novalidate>
         <div>
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Nome e Cognome</label>
           <input type="text" id="reg-name" placeholder="es. Anthony Rossi" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-sm text-white focus:border-emerald-500 focus:outline-none" />
@@ -88,7 +89,6 @@
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Password (min. 6 caratteri)</label>
           <input type="password" id="reg-password" autocomplete="new-password" placeholder="Crea una password" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-sm text-white focus:border-emerald-500 focus:outline-none" />
         </div>
-        <p id="reg-msg" class="text-xs hidden"></p>
         <button type="submit" id="btn-register-submit" class="w-full h-11 rounded-xl text-sm font-extrabold bg-emerald-500 active:bg-emerald-400 text-zinc-950">
           Crea Account
         </button>
@@ -169,7 +169,7 @@
         <div class="flex items-center justify-between gap-3 flex-wrap">
           <div>
             <h2 class="text-xl font-black text-white">Tutte le tue Gare</h2>
-            <p class="text-xs text-zinc-400">Tocca una gara per vedere i tempi delle stazioni o modificarla.</p>
+            <p class="text-xs text-zinc-400">Tocca una gara per aprire la card foto, condividere o modificare.</p>
           </div>
           <button type="button" id="btn-open-new-2" class="px-4 py-2 text-xs font-extrabold rounded-xl bg-emerald-500 text-zinc-950">
             + Nuova Gara
@@ -444,9 +444,9 @@
     </div>
   </div>
 
-  <!-- MODAL: DETTAGLIO & FINISHER CARD -->
+  <!-- MODAL: DETTAGLIO & FINISHER CARD FOTO -->
   <div id="detail-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-start justify-center p-4 pt-10 overflow-y-auto">
-    <div id="detail-content" class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full p-6 space-y-6 my-6 shadow-2xl"></div>
+    <div id="detail-content" class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full p-5 sm:p-6 space-y-5 my-6 shadow-2xl"></div>
   </div>
 
   <script>
@@ -462,6 +462,7 @@
 
     const STORAGE_RACES_KEY = 'athletehub_persistent_races_v4';
     const STORAGE_PROFILE_KEY = 'athletehub_persistent_profile_v4';
+    const STORAGE_LOGGED_KEY = 'athletehub_logged_in_v4';
 
     const BADGE_TIERS = [
       { min: 20, icon: '👑', name: 'Legend', desc: '20+ competizioni' },
@@ -560,4 +561,1150 @@
         { key: 'Uscita / Rifornimento', placeholder: 'es. 01:15:00' },
         { key: 'Traguardo Acque Libere', placeholder: 'es. 02:14:10' }
       ],
-      DEADLY_DOZEN:    
+      DEADLY_DOZEN: [
+        { key: 'Station 1: SkiErg', placeholder: 'es. 03:50' },
+        { key: 'Station 2: RowErg', placeholder: 'es. 03:45' },
+        { key: 'Station 3: BikeErg', placeholder: 'es. 04:10' },
+        { key: 'Station 4: Sled Push', placeholder: 'es. 02:35' },
+        { key: 'Station 5: Sled Pull', placeholder: 'es. 03:55' },
+        { key: 'Station 6: Farmers Carry', placeholder: 'es. 01:50' },
+        { key: 'Station 7: Sandbag Lunges', placeholder: 'es. 04:05' },
+        { key: 'Station 8: Wall Balls', placeholder: 'es. 03:50' },
+        { key: 'Station 9: Devil Press / Burpees', placeholder: 'es. 03:30' },
+        { key: 'Station 10: KB / DB Carry', placeholder: 'es. 01:45' },
+        { key: 'Station 11: Box Jumps / Step-Overs', placeholder: 'es. 02:20' },
+        { key: 'Station 12: Thrusters / Finisher', placeholder: 'es. 03:15' }
+      ],
+      SPARTAN: [
+        { key: 'Frazione / Ostacoli 1', placeholder: 'es. 00:18:20' },
+        { key: 'Frazione / Ostacoli 2', placeholder: 'es. 00:22:10' },
+        { key: 'Frazione / Ostacoli 3', placeholder: 'es. 00:25:05' },
+        { key: 'Frazione / Ostacoli 4', placeholder: 'es. 00:19:40' },
+        { key: 'Arrivo / Finisher', placeholder: 'es. 01:25:35' }
+      ],
+      IRONMAN_FULL: [
+        { key: 'Nuoto (3.8 km)', placeholder: 'es. 01:12:00' },
+        { key: 'T1 (Transizione 1)', placeholder: 'es. 00:05:10' },
+        { key: 'Ciclismo (180 km)', placeholder: 'es. 05:18:30' },
+        { key: 'T2 (Transizione 2)', placeholder: 'es. 00:04:45' },
+        { key: 'Corsa / Maratona (42.2 km)', placeholder: 'es. 03:42:15' }
+      ],
+      IRONMAN_703: [
+        { key: 'Nuoto (1.9 km)', placeholder: 'es. 00:34:20' },
+        { key: 'T1 (Transizione 1)', placeholder: 'es. 00:03:10' },
+        { key: 'Ciclismo (90 km)', placeholder: 'es. 02:32:40' },
+        { key: 'T2 (Transizione 2)', placeholder: 'es. 00:02:50' },
+        { key: 'Corsa / Mezza Maratona (21.1 km)', placeholder: 'es. 01:41:10' }
+      ],
+      TRIATHLON: [
+        { key: 'Nuoto', placeholder: 'es. 00:24:10' },
+        { key: 'T1', placeholder: 'es. 00:02:10' },
+        { key: 'Ciclismo', placeholder: 'es. 01:05:30' },
+        { key: 'T2', placeholder: 'es. 00:01:45' },
+        { key: 'Corsa', placeholder: 'es. 00:41:20' }
+      ],
+      MARATHON: [
+        { key: '10 km', placeholder: 'es. 00:42:10' },
+        { key: '21.1 km (Mezza)', placeholder: 'es. 01:29:30' },
+        { key: '30 km', placeholder: 'es. 02:08:00' },
+        { key: '42.2 km (Arrivo)', placeholder: 'es. 03:02:45' }
+      ],
+      STRAMILANO: [
+        { key: '5 km', placeholder: 'es. 00:21:15' },
+        { key: '10 km', placeholder: 'es. 00:43:05' },
+        { key: 'Arrivo', placeholder: 'es. 01:32:40' }
+      ],
+      RUNNING: [
+        { key: 'Distanza', placeholder: 'es. 10 km / 21.1 km' },
+        { key: 'Passo Medio', placeholder: 'es. 4:10 /km' },
+        { key: 'Dislivello D+', placeholder: 'es. 250 m' },
+        { key: 'FC Media', placeholder: 'es. 168 bpm' }
+      ],
+      ROWING: [
+        { key: 'Distanza', placeholder: 'es. 200m / 2000m' },
+        { key: 'Potenza Media', placeholder: 'es. 915 W' },
+        { key: 'Passo /500m', placeholder: 'es. 1:12.2' },
+        { key: 'Frequenza', placeholder: 'es. 48 s/m' }
+      ],
+      POWERLIFTING: [
+        { key: 'Squat', placeholder: 'es. 210 kg' },
+        { key: 'Panca Piana', placeholder: 'es. 140 kg' },
+        { key: 'Stacco da Terra', placeholder: 'es. 245 kg' },
+        { key: 'Punti GL / DOTS', placeholder: 'es. 408.5' }
+      ]
+    };
+
+    const DEFAULT_PROFILE = {
+      name: 'Anthony',
+      gender: 'Uomo',
+      weight: '79.5 kg',
+      height: '182 cm',
+      vo2: 'VO2 54',
+      goal: 'HYROX Milano • 13 Dicembre',
+      photo: ''
+    };
+
+    const DEFAULT_RACES = [
+      {
+        id: 'seed-1',
+        sport: 'HYROX',
+        title: 'HYROX Milano',
+        date: '2026-09-20',
+        location: 'Fiera Milano Rho',
+        gender: 'Uomo',
+        category: 'Singles / Individual',
+        result: '01:09:15',
+        rank: 18,
+        total: 450,
+        pb: true,
+        notes: 'Ottima gestione delle corse e chiusura Wall Balls unbroken.',
+        details: {
+          '1. SkiErg (1000m)': '03:58',
+          '2. Sled Push (50m)': '02:45',
+          '3. Sled Pull (50m)': '04:10',
+          '4. Burpee Broad Jumps (80m)': '03:50',
+          '5. Rowing (1000m)': '03:55',
+          '6. Farmers Carry (200m)': '01:52',
+          '7. Sandbag Lunges (100m)': '04:20',
+          '8. Wall Balls (75/100)': '04:10'
+        }
+      },
+      {
+        id: 'seed-2',
+        sport: 'OCEANMAN',
+        title: 'OCEANMAN Lake Orta 5 km',
+        date: '2026-07-12',
+        location: 'Lago d’Orta',
+        gender: 'Uomo',
+        category: 'Open / Age Group',
+        result: '01:14:20',
+        rank: 9,
+        total: 140,
+        pb: true,
+        notes: 'Acqua fresca ma ottima traiettoria alle boe.',
+        details: {
+          'Start / Boa 1': '00:14:10',
+          'Boa Intermedia': '00:36:40',
+          'Traguardo Acque Libere': '01:14:20'
+        }
+      },
+      {
+        id: 'seed-3',
+        sport: 'ATHX',
+        title: 'ATHX Games Milano',
+        date: '2026-05-24',
+        location: 'Milano',
+        gender: 'Uomo',
+        category: 'Pro / Elite',
+        result: '00:44:18',
+        rank: 3,
+        total: 80,
+        pb: false,
+        notes: 'Podio conquistato con ottimo ritmo sulle ripetizioni.',
+        details: {
+          'Station / Round 1': '07:10',
+          'Station / Round 2': '07:25',
+          'Station / Round 3': '07:40'
+        }
+      }
+    ];
+
+    const BENCHMARK_ATHLETES = [
+      { id: 'b1', name: 'Luca Ferretti', gender: 'Uomo', sport: 'HYROX', subcat: 'Singles / Individual', title: 'HYROX Milano', result: '01:04:12', racesCount: 14, pb: true },
+      { id: 'b2', name: 'Giulia Conti', gender: 'Donna', sport: 'HYROX', subcat: 'Singles / Individual', title: 'HYROX Milano', result: '01:11:05', racesCount: 11, pb: true },
+      { id: 'b3', name: 'Matteo Riva', gender: 'Uomo', sport: 'OCEANMAN', subcat: 'Open / Age Group', title: 'OCEANMAN 5 km', result: '01:08:40', racesCount: 8, pb: true },
+      { id: 'b4', name: 'Elena Marchetti', gender: 'Donna', sport: 'OCEANMAN', subcat: 'Open / Age Group', title: 'OCEANMAN 5 km', result: '01:13:15', racesCount: 7, pb: false },
+      { id: 'b5', name: 'Davide Greco', gender: 'Uomo', sport: 'ATHX', subcat: 'Pro / Elite', title: 'ATHX Games', result: '00:41:50', racesCount: 6, pb: true },
+      { id: 'b6', name: 'Chiara Bellini', gender: 'Donna', sport: 'ATHX', subcat: 'Pro / Elite', title: 'ATHX Games', result: '00:45:30', racesCount: 5, pb: true },
+      { id: 'b7', name: 'Simone Colombo', gender: 'Uomo', sport: 'MARATHON', subcat: 'Open / Age Group', title: 'Milano Marathon', result: '02:54:10', racesCount: 22, pb: true },
+      { id: 'b8', name: 'Sara Lombardi', gender: 'Donna', sport: 'MARATHON', subcat: 'Open / Age Group', title: 'Milano Marathon', result: '03:08:45', racesCount: 12, pb: true }
+    ];
+
+    let profile = Object.assign({}, DEFAULT_PROFILE);
+    let races = [];
+    let activeFilter = 'ALL';
+    let activeTab = 'home';
+    let editingRaceId = null;
+    let rankMode = 'general';
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    function escapeAttr(str) {
+      return String(str || '').replace(/"/g, '&quot;');
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const parts = String(dateStr).split('-');
+      if (parts.length !== 3) return dateStr;
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    function persistAllData() {
+      try {
+        localStorage.setItem(STORAGE_RACES_KEY, JSON.stringify(races));
+        localStorage.setItem(STORAGE_PROFILE_KEY, JSON.stringify(profile));
+      } catch (e) {}
+      try {
+        window.name = JSON.stringify({
+          races,
+          profile: Object.assign({}, profile, { photo: '' })
+        });
+      } catch (e) {}
+      const statusEl = document.getElementById('home-save-status');
+      if (statusEl) {
+        statusEl.textContent = '✓ Salvato';
+        setTimeout(() => {
+          if (statusEl) statusEl.textContent = '✓ Salvato su dispositivo';
+        }, 1200);
+      }
+    }
+
+    function loadPersistentData() {
+      let loadedRaces = null;
+      let loadedProfile = null;
+
+      try {
+        const rawR = localStorage.getItem(STORAGE_RACES_KEY);
+        if (rawR) loadedRaces = JSON.parse(rawR);
+      } catch (e) {}
+
+      try {
+        const rawP = localStorage.getItem(STORAGE_PROFILE_KEY);
+        if (rawP) loadedProfile = JSON.parse(rawP);
+      } catch (e) {}
+
+      if (!Array.isArray(loadedRaces) || !loadedRaces.length) {
+        try {
+          if (window.name && window.name.startsWith('{')) {
+            const parsedWin = JSON.parse(window.name);
+            if (Array.isArray(parsedWin.races) && parsedWin.races.length) {
+              loadedRaces = parsedWin.races;
+            }
+            if (!loadedProfile && parsedWin.profile) {
+              loadedProfile = parsedWin.profile;
+            }
+          }
+        } catch (e) {}
+      }
+
+      races = Array.isArray(loadedRaces) ? loadedRaces : DEFAULT_RACES.slice();
+      profile = Object.assign({}, DEFAULT_PROFILE, loadedProfile || {});
+      persistAllData();
+    }
+
+    function syncProfileUI() {
+      const badge = getBadgeForCount(races.length);
+      const initials = (profile.name || 'AH').trim().split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase() || 'AH';
+
+      document.getElementById('header-greeting').textContent = `Ciao, ${profile.name || 'Atleta'}`;
+      document.getElementById('header-badge-pill').textContent = `${badge.icon} ${badge.name}`;
+      document.getElementById('header-metrics').textContent = `${profile.gender || 'Uomo'} • ${profile.weight || '-'} • ${races.length} gare`;
+
+      const hImg = document.getElementById('header-avatar-img');
+      const hFb = document.getElementById('header-avatar-fallback');
+      const pImg = document.getElementById('profile-avatar-img');
+      const pFb = document.getElementById('profile-avatar-fallback');
+
+      if (profile.photo) {
+        hImg.src = profile.photo;
+        hImg.classList.remove('hidden');
+        hFb.classList.add('hidden');
+        pImg.src = profile.photo;
+        pImg.classList.remove('hidden');
+        pFb.classList.add('hidden');
+      } else {
+        hImg.classList.add('hidden');
+        hFb.textContent = initials;
+        hFb.classList.remove('hidden');
+        pImg.classList.add('hidden');
+        pFb.textContent = initials;
+        pFb.classList.remove('hidden');
+      }
+
+      document.getElementById('home-goal-title').textContent = profile.goal || 'Obiettivo Stagione';
+      document.getElementById('home-goal-sub').textContent = `${profile.name || 'Atleta'} • ${profile.gender || 'Uomo'} • ${profile.height || ''} ${profile.vo2 ? '• ' + profile.vo2 : ''}`;
+
+      document.getElementById('profile-display-name').textContent = profile.name || 'Atleta';
+      document.getElementById('profile-display-meta').textContent = `${profile.gender || 'Uomo'} • ${races.length} gare registrate`;
+      document.getElementById('profile-current-badge').textContent = `${badge.icon} ${badge.name} (${races.length} gare)`;
+
+      document.getElementById('prof-name').value = profile.name || '';
+      document.getElementById('prof-gender').value = profile.gender || 'Uomo';
+      document.getElementById('prof-weight').value = profile.weight || '';
+      document.getElementById('prof-height').value = profile.height || '';
+      document.getElementById('prof-vo2').value = profile.vo2 || '';
+      document.getElementById('prof-goal').value = profile.goal || '';
+    }
+
+    function openApp() {
+      try { localStorage.setItem(STORAGE_LOGGED_KEY, '1'); } catch (e) {}
+      loadPersistentData();
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('app-screen').classList.remove('hidden');
+      document.getElementById('app-screen').classList.add('flex');
+      syncProfileUI();
+      renderKPIs();
+      renderFilters();
+      renderRaces();
+      renderRankings();
+      switchTab(activeTab);
+    }
+
+    function switchTab(tabName) {
+      activeTab = tabName;
+      ['home', 'races', 'rankings', 'profile'].forEach(t => {
+        const sec = document.getElementById('view-' + t);
+        if (sec) sec.classList.toggle('hidden', t !== tabName);
+      });
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        const isAct = btn.getAttribute('data-tab') === tabName;
+        btn.classList.toggle('text-emerald-400', isAct);
+        btn.classList.toggle('text-zinc-400', !isAct);
+      });
+      if (tabName === 'rankings') renderRankings();
+      if (tabName === 'profile') syncProfileUI();
+      if (tabName === 'races' || tabName === 'home') renderRaces();
+    }
+
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      const tabLogin = document.getElementById('tab-login');
+      const tabRegister = document.getElementById('tab-register');
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        tabLogin.className = 'py-2.5 rounded-lg text-xs font-bold bg-zinc-800 text-white';
+        tabRegister.className = 'py-2.5 rounded-lg text-xs font-bold text-zinc-400';
+      } else {
+        registerForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        tabRegister.className = 'py-2.5 rounded-lg text-xs font-bold bg-zinc-800 text-white';
+        tabLogin.className = 'py-2.5 rounded-lg text-xs font-bold text-zinc-400';
+      }
+    }
+
+    function handleLoginAction(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const email = (document.getElementById('login-email').value || '').trim();
+      const password = document.getElementById('login-password').value || '';
+
+      loadPersistentData();
+      if (email && (!profile.name || profile.name === 'Anthony')) {
+        const extracted = email.split('@')[0];
+        if (extracted) {
+          profile.name = extracted.charAt(0).toUpperCase() + extracted.slice(1);
+          persistAllData();
+        }
+      }
+
+      openApp();
+
+      if (sb && email && password) {
+        try {
+          sb.auth.signInWithPassword({ email, password }).catch(() => {});
+        } catch (err) {}
+      }
+    }
+
+    function handleRegisterAction(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const name = (document.getElementById('reg-name').value || '').trim();
+      const gender = document.getElementById('reg-gender').value || 'Uomo';
+      const email = (document.getElementById('reg-email').value || '').trim();
+      const password = document.getElementById('reg-password').value || '';
+
+      loadPersistentData();
+      profile.name = name || (email ? email.split('@')[0] : 'Atleta');
+      profile.gender = gender;
+      persistAllData();
+
+      openApp();
+
+      if (sb && email && password.length >= 6) {
+        try {
+          sb.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: profile.name, gender } }
+          }).catch(() => {});
+        } catch (err) {}
+      }
+    }
+
+    function handleLogout() {
+      persistAllData();
+      try { localStorage.removeItem(STORAGE_LOGGED_KEY); } catch (e) {}
+      try { if (sb) sb.auth.signOut().catch(() => {}); } catch (e) {}
+      document.getElementById('app-screen').classList.add('hidden');
+      document.getElementById('app-screen').classList.remove('flex');
+      document.getElementById('auth-screen').classList.remove('hidden');
+    }
+
+    function renderKPIs() {
+      const totalRaces = races.length;
+      const podiums = races.filter(r => r.rank && Number(r.rank) <= 3).length;
+      const pbs = races.filter(r => r.pb).length;
+      const sportsCount = new Set(races.map(r => r.sport)).size;
+
+      const kpis = [
+        { label: 'Gare', value: totalRaces, sub: 'Totale gare disputate', icon: '🏁', color: 'text-white' },
+        { label: 'Podi', value: podiums, sub: 'Medaglie conquistate', icon: '🥇', color: 'text-amber-400' },
+        { label: 'Personal Best', value: pbs, sub: 'Record personali', icon: '🔥', color: 'text-emerald-400' },
+        { label: 'Discipline', value: sportsCount, sub: 'Sport praticati', icon: '⚡', color: 'text-cyan-400' }
+      ];
+
+      document.getElementById('kpi-container').innerHTML = kpis.map(k => `
+        <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 flex items-center justify-between gap-2">
+          <div>
+            <p class="text-[11px] font-bold text-zinc-400">${k.label}</p>
+            <p class="text-2xl sm:text-3xl font-black mt-0.5 ${k.color}">${k.value}</p>
+            <p class="text-[11px] text-zinc-500 mt-0.5">${k.sub}</p>
+          </div>
+          <div class="text-2xl bg-zinc-950 w-11 h-11 rounded-xl flex items-center justify-center border border-zinc-800/80 shrink-0">${k.icon}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderFilters() {
+      const buttons = [
+        { key: 'ALL', label: 'Tutti' },
+        ...Object.entries(SPORT_CONFIG).map(([key, cfg]) => ({ key, label: `${cfg.icon} ${cfg.label}` }))
+      ];
+
+      const el = document.getElementById('home-sport-filters');
+      el.innerHTML = buttons.map(b => {
+        const active = activeFilter === b.key;
+        return `
+          <button type="button" data-filter="${escapeAttr(b.key)}" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+            active
+              ? 'bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/20'
+              : 'bg-zinc-950 text-zinc-400 active:text-white border border-zinc-800'
+          }">
+            ${b.label}
+          </button>
+        `;
+      }).join('');
+
+      el.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeFilter = btn.getAttribute('data-filter');
+          renderFilters();
+          renderRaces();
+        });
+      });
+    }
+
+    function renderRaces() {
+      const query = (document.getElementById('search-input').value || '').toLowerCase();
+      const filtered = races
+        .filter(r => activeFilter === 'ALL' || r.sport === activeFilter)
+        .filter(r =>
+          (r.title || '').toLowerCase().includes(query) ||
+          (r.location && r.location.toLowerCase().includes(query)) ||
+          (r.category && r.category.toLowerCase().includes(query)) ||
+          (r.notes && r.notes.toLowerCase().includes(query))
+        )
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      document.getElementById('home-races-count').textContent = `${filtered.length} gare`;
+
+      const emptyHtml = `
+        <div class="col-span-full text-center py-12 bg-zinc-900/40 rounded-2xl border border-dashed border-zinc-800">
+          <p class="text-zinc-400 font-semibold">Nessuna gara trovata.</p>
+          <button type="button" id="btn-empty-new" class="mt-3 text-sm text-emerald-400 font-bold">+ Aggiungi gara</button>
+        </div>
+      `;
+
+      const cardsHtml = filtered.length === 0 ? emptyHtml : filtered.map(r => {
+        const cfg = SPORT_CONFIG[r.sport] || SPORT_CONFIG.RUNNING;
+
+        return `
+          <div data-race-id="${escapeAttr(r.id)}" class="race-card group bg-zinc-900/85 active:bg-zinc-900 border border-zinc-800 active:border-emerald-500/50 rounded-2xl p-4 sm:p-5 transition cursor-pointer flex flex-col justify-between space-y-3.5 shadow-lg">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl border ${cfg.bg} ${cfg.border} ${cfg.color} flex items-center justify-center text-lg shrink-0">${cfg.icon}</div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h3 class="text-base font-extrabold text-white truncate">${escapeHtml(r.title)}</h3>
+                    ${r.pb ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">NEW PB</span>' : ''}
+                  </div>
+                  <p class="text-xs text-zinc-400 mt-0.5 truncate">📅 ${formatDate(r.date)} ${r.location ? '• 📍 ' + escapeHtml(r.location) : ''}</p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5 truncate">• ${escapeHtml(r.category || 'Open')}</p>
+                </div>
+              </div>
+              ${r.rank ? `<span class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-zinc-800 text-zinc-200 shrink-0">#${r.rank}</span>` : ''}
+            </div>
+
+            <div class="pt-3 border-t border-zinc-800/80 flex items-center justify-between gap-2">
+              <div>
+                <p class="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Tempo Finale</p>
+                <p class="text-2xl font-black text-white tracking-tight mt-0.5">${escapeHtml(r.result)}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-1.5 rounded-xl text-xs font-bold bg-zinc-950 text-zinc-200 border border-zinc-800">Card Foto & Modifica →</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('races-grid-home').innerHTML = cardsHtml;
+      document.getElementById('races-grid-all').innerHTML = cardsHtml;
+
+      const emptyBtn = document.getElementById('btn-empty-new');
+      if (emptyBtn) emptyBtn.addEventListener('click', () => openNewModal());
+
+      document.querySelectorAll('.race-card').forEach(card => {
+        card.addEventListener('click', () => {
+          openDetailModal(card.getAttribute('data-race-id'));
+        });
+      });
+    }
+
+    function syncPresetSelect() {
+      const sport = document.getElementById('form-sport').value;
+      const presetSel = document.getElementById('form-preset');
+      const opts = PRESETS_BY_SPORT[sport] || ['Gara non in elenco (scrivi nome sotto)'];
+      presetSel.innerHTML = opts.map(o => `<option value="${escapeAttr(o)}">${escapeHtml(o)}</option>`).join('');
+      updateCustomNamePlaceholder();
+    }
+
+    function updateCustomNamePlaceholder() {
+      const sport = document.getElementById('form-sport').value;
+      const preset = document.getElementById('form-preset').value;
+      const titleInput = document.getElementById('form-title');
+      if (sport === 'RUNNING' || preset.toLowerCase().includes('scrivi')) {
+        titleInput.placeholder = 'Scrivi qui il nome della gara (se non è in elenco)...';
+      } else {
+        titleInput.placeholder = `Opzionale: nome specifico o dettaglio (${preset})`;
+      }
+    }
+
+    function addExtraStationRow(keyVal = '', valVal = '') {
+      const list = document.getElementById('extra-stations-list');
+      const row = document.createElement('div');
+      row.className = 'grid grid-cols-12 gap-2 extra-station-row items-center';
+      row.innerHTML = `
+        <input type="text" value="${escapeAttr(keyVal)}" placeholder="Stazione / Split (es. Split 5km)" class="col-span-6 extra-key h-10 bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none" />
+        <input type="text" value="${escapeAttr(valVal)}" placeholder="Tempo / Dato" class="col-span-4 extra-val h-10 bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none" />
+        <button type="button" class="col-span-2 btn-rm-extra h-10 text-xs font-bold text-red-400 bg-zinc-900 border border-zinc-800 rounded-lg">✕</button>
+      `;
+      row.querySelector('.btn-rm-extra').addEventListener('click', () => row.remove());
+      list.appendChild(row);
+    }
+
+    function renderDynamicFields(existingDetails) {
+      const sport = document.getElementById('form-sport').value;
+      const container = document.getElementById('dynamic-fields-container');
+      const fields = SPORT_TEMPLATES[sport] || [];
+      const detailsObj = existingDetails || {};
+      const knownKeys = new Set(fields.map(f => f.key));
+
+      container.innerHTML = `
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <p class="text-xs font-bold uppercase tracking-wider text-emerald-400">Stazioni, Frazioni & Parziali (${SPORT_CONFIG[sport].label})</p>
+          <button type="button" id="btn-add-extra" class="px-2.5 py-1 text-xs font-bold bg-zinc-900 active:bg-zinc-800 text-emerald-400 border border-zinc-700 rounded-lg">
+            + Aggiungi stazione / split
+          </button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          ${fields.map(f => `
+            <div>
+              <label class="block text-[11px] font-semibold text-zinc-400 mb-1">${escapeHtml(f.key)}</label>
+              <input type="text" data-detail-key="${escapeAttr(f.key)}" value="${escapeAttr(detailsObj[f.key] || '')}" placeholder="${escapeAttr(f.placeholder)}" class="detail-input uniform-field bg-zinc-900 border border-zinc-800 rounded-lg px-3 text-xs text-white focus:border-emerald-500 focus:outline-none" />
+            </div>
+          `).join('')}
+        </div>
+        <div id="extra-stations-list" class="space-y-2 pt-1"></div>
+      `;
+
+      document.getElementById('btn-add-extra').addEventListener('click', () => addExtraStationRow());
+
+      Object.entries(detailsObj).forEach(([k, v]) => {
+        if (!knownKeys.has(k)) {
+          addExtraStationRow(k, v);
+        }
+      });
+    }
+
+    function openNewModal(raceToEdit) {
+      const isEdit = Boolean(raceToEdit && raceToEdit.id);
+      editingRaceId = isEdit ? raceToEdit.id : null;
+
+      document.getElementById('modal-form-title').textContent = isEdit ? 'Modifica Competizione' : 'Registra Nuova Competizione';
+      document.getElementById('btn-save-race-submit').textContent = isEdit ? 'Salva Modifiche' : 'Salva Gara';
+      document.getElementById('race-form').reset();
+
+      if (isEdit) {
+        document.getElementById('form-sport').value = raceToEdit.sport || 'HYROX';
+        syncPresetSelect();
+        document.getElementById('form-title').value = raceToEdit.title || '';
+        document.getElementById('form-date').value = raceToEdit.date || new Date().toISOString().split('T')[0];
+        document.getElementById('form-location').value = raceToEdit.location || '';
+        document.getElementById('form-gender').value = raceToEdit.gender || profile.gender || 'Uomo';
+        document.getElementById('form-category').value = raceToEdit.category || '';
+        document.getElementById('form-result').value = raceToEdit.result || '';
+        document.getElementById('form-rank').value = raceToEdit.rank || '';
+        document.getElementById('form-total').value = raceToEdit.total || '';
+        document.getElementById('form-pb').checked = Boolean(raceToEdit.pb);
+        document.getElementById('form-notes').value = raceToEdit.notes || '';
+        renderDynamicFields(raceToEdit.details || {});
+      } else {
+        document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('form-gender').value = profile.gender || 'Uomo';
+        syncPresetSelect();
+        renderDynamicFields({});
+      }
+
+      document.getElementById('new-modal').classList.remove('hidden');
+      document.getElementById('new-modal').classList.add('flex');
+    }
+
+    function closeNewModal() {
+      editingRaceId = null;
+      document.getElementById('new-modal').classList.add('hidden');
+      document.getElementById('new-modal').classList.remove('flex');
+    }
+
+    function saveRace(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const sport = document.getElementById('form-sport').value;
+      const preset = document.getElementById('form-preset').value;
+      const customTitle = (document.getElementById('form-title').value || '').trim();
+      const isWritePreset = preset.toLowerCase().includes('scrivi');
+      const finalTitle = customTitle || (!isWritePreset ? preset : SPORT_CONFIG[sport].label);
+
+      const details = {};
+      document.querySelectorAll('.detail-input').forEach(inp => {
+        if (inp.value.trim()) {
+          details[inp.dataset.detailKey] = inp.value.trim();
+        }
+      });
+      document.querySelectorAll('.extra-station-row').forEach(row => {
+        const k = (row.querySelector('.extra-key')?.value || '').trim();
+        const v = (row.querySelector('.extra-val')?.value || '').trim();
+        if (k || v) {
+          details[k || 'Split'] = v || '-';
+        }
+      });
+
+      const payload = {
+        id: editingRaceId || Date.now().toString(),
+        sport,
+        title: finalTitle,
+        date: document.getElementById('form-date').value,
+        location: (document.getElementById('form-location').value || '').trim(),
+        gender: document.getElementById('form-gender').value || 'Uomo',
+        category: (document.getElementById('form-category').value || '').trim() || 'Open / Age Group',
+        result: (document.getElementById('form-result').value || '').trim(),
+        rank: parseInt(document.getElementById('form-rank').value, 10) || null,
+        total: parseInt(document.getElementById('form-total').value, 10) || null,
+        pb: document.getElementById('form-pb').checked,
+        notes: (document.getElementById('form-notes').value || '').trim(),
+        details
+      };
+
+      if (editingRaceId) {
+        races = races.map(item => item.id === editingRaceId ? payload : item);
+      } else {
+        races.unshift(payload);
+      }
+
+      persistAllData();
+      closeNewModal();
+      syncProfileUI();
+      renderKPIs();
+      renderRaces();
+      renderRankings();
+    }
+
+    function generateCardCanvas(race) {
+      const cfg = SPORT_CONFIG[race.sport] || SPORT_CONFIG.RUNNING;
+      const badge = getBadgeForCount(races.length);
+      const canvas = document.createElement('canvas');
+      canvas.width = 1080;
+      canvas.height = 1350;
+      const ctx = canvas.getContext('2d');
+
+      const grad = ctx.createLinearGradient(0, 0, 1080, 1350);
+      grad.addColorStop(0, '#071c16');
+      grad.addColorStop(0.55, '#09090b');
+      grad.addColorStop(1, '#050506');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1080, 1350);
+
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(36, 36, 1008, 1278);
+
+      ctx.fillStyle = '#34d399';
+      ctx.font = '800 28px Inter, Arial, sans-serif';
+      ctx.fillText('ATHLETEHUB • FINISHER PHOTO CARD', 84, 112);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 54px Inter, Arial, sans-serif';
+      ctx.fillText(`${cfg.icon} ${cfg.label}`, 84, 195);
+
+      ctx.fillStyle = '#a1a1aa';
+      ctx.font = '600 28px Inter, Arial, sans-serif';
+      ctx.fillText(`${profile.name || 'Atleta'}  •  ${badge.icon} ${badge.name}`, 84, 245);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 62px Inter, Arial, sans-serif';
+      ctx.fillText(String(race.title || '').slice(0, 32), 84, 375);
+
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = '600 30px Inter, Arial, sans-serif';
+      ctx.fillText(`${formatDate(race.date)}${race.location ? '  •  ' + race.location : ''}`, 84, 430);
+
+      ctx.fillStyle = 'rgba(24, 24, 27, 0.92)';
+      ctx.fillRect(84, 490, 912, 260);
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.25)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(84, 490, 912, 260);
+
+      ctx.fillStyle = '#34d399';
+      ctx.font = '700 26px Inter, Arial, sans-serif';
+      ctx.fillText('TEMPO FINALE', 124, 550);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 108px Inter, Arial, sans-serif';
+      ctx.fillText(String(race.result || '--:--'), 124, 680);
+
+      if (race.pb) {
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(730, 520, 220, 62);
+        ctx.fillStyle = '#052e16';
+        ctx.font = '900 28px Inter, Arial, sans-serif';
+        ctx.fillText('🏆 NEW PB', 756, 561);
+      }
+
+      ctx.fillStyle = '#e4e4e7';
+      ctx.font = '700 30px Inter, Arial, sans-serif';
+      const rankTxt = race.rank ? `Posizione: #${race.rank}${race.total ? '/' + race.total : ''}` : 'Finisher';
+      ctx.fillText(rankTxt, 84, 825);
+      ctx.fillText(`${race.gender || 'Uomo'}  •  ${race.category || 'Open'}`, 84, 875);
+
+      const splits = Object.entries(race.details || {}).slice(0, 4);
+      splits.forEach(([k, v], i) => {
+        const y = 955 + i * 68;
+        ctx.fillStyle = 'rgba(24, 24, 27, 0.85)';
+        ctx.fillRect(84, y - 38, 912, 54);
+        ctx.fillStyle = '#a1a1aa';
+        ctx.font = '600 24px Inter, Arial, sans-serif';
+        ctx.fillText(String(k).slice(0, 32), 112, y - 2);
+        ctx.fillStyle = '#34d399';
+        ctx.font = '800 26px Inter, Arial, sans-serif';
+        ctx.fillText(String(v), 780, y - 2);
+      });
+
+      return canvas;
+    }
+
+    function downloadCardPhoto(race) {
+      const canvas = generateCardCanvas(race);
+      const dataUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `AthleteHub_${(race.title || 'Card').replace(/\s+/g, '_')}.png`;
+      a.click();
+    }
+
+    async function shareCardPhoto(race) {
+      const canvas = generateCardCanvas(race);
+      const textSummary = `${race.title} (${formatDate(race.date)}) — Tempo: ${race.result}${race.rank ? ' • #' + race.rank : ''} su AthleteHub`;
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: 'AthleteHub Finisher Card',
+            text: textSummary
+          });
+          return;
+        }
+      } catch (e) {}
+      downloadCardPhoto(race);
+    }
+
+    function openDetailModal(id) {
+      const r = races.find(item => item.id === id);
+      if (!r) return;
+      const cfg = SPORT_CONFIG[r.sport] || SPORT_CONFIG.RUNNING;
+      const badge = getBadgeForCount(races.length);
+      const detailEntries = Object.entries(r.details || {});
+      const initials = (profile.name || 'AH').trim().split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase() || 'AH';
+
+      const el = document.getElementById('detail-content');
+      el.innerHTML = `
+        <div class="flex items-center justify-between border-b border-zinc-800 pb-3.5">
+          <span class="px-3 py-1 rounded-lg text-xs font-bold border ${cfg.bg} ${cfg.color} ${cfg.border}">${cfg.icon} ${cfg.label}</span>
+          <div class="flex items-center gap-2">
+            <button type="button" id="btn-edit-race" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 active:bg-emerald-500/25">
+              ✏️ Modifica Gara
+            </button>
+            <button type="button" id="btn-close-detail-x" class="text-zinc-400 active:text-white text-2xl font-bold px-2">&times;</button>
+          </div>
+        </div>
+
+        <!-- CARD STILE FOTO -->
+        <div class="rounded-3xl bg-gradient-to-br from-emerald-950/60 via-zinc-950 to-zinc-950 border border-emerald-500/35 p-5 sm:p-6 shadow-2xl space-y-5">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-12 h-12 rounded-full border-2 border-emerald-400 bg-zinc-900 overflow-hidden flex items-center justify-center shrink-0">
+                ${profile.photo
+                  ? `<img src="${escapeAttr(profile.photo)}" alt="Avatar" class="w-full h-full object-cover" />`
+                  : `<span class="text-sm font-black text-emerald-400">${escapeHtml(initials)}</span>`
+                }
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] font-black tracking-widest uppercase text-emerald-400">ATHLETEHUB PHOTO CARD</p>
+                <p class="text-sm font-extrabold text-white truncate">${escapeHtml(profile.name || 'Atleta')} • ${badge.icon} ${badge.name}</p>
+              </div>
+            </div>
+            ${r.pb ? '<span class="px-3 py-1 rounded-full text-xs font-black bg-emerald-500 text-zinc-950 shrink-0">NEW PB</span>' : ''}
+          </div>
+
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">${escapeHtml(r.title)}</h2>
+            <p class="text-xs text-zinc-400 mt-1">📅 ${formatDate(r.date)} ${r.location ? '• 📍 ' + escapeHtml(r.location) : ''} • ${escapeHtml(r.gender || 'Uomo')} • ${escapeHtml(r.category || 'Open')}</p>
+          </div>
+
+          <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 flex items-center justify-between gap-3">
+            <div>
+              <p class="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">Tempo Finale</p>
+              <p class="text-3xl sm:text-4xl font-black text-emerald-400 tracking-tight mt-0.5">${escapeHtml(r.result)}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">Classifica</p>
+              <p class="text-2xl font-black text-white mt-0.5">${r.rank ? '#' + r.rank : '-'} <span class="text-xs font-normal text-zinc-400">${r.total ? '/ ' + r.total : ''}</span></p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <button type="button" id="btn-share-card" class="h-11 rounded-xl text-xs font-extrabold bg-emerald-500 active:bg-emerald-400 text-zinc-950 flex items-center justify-center gap-1.5">
+              📤 Condividi
+            </button>
+            <button type="button" id="btn-save-card-img" class="h-11 rounded-xl text-xs font-extrabold bg-zinc-900 active:bg-zinc-800 text-white border border-zinc-700 flex items-center justify-center gap-1.5">
+              🖼️ Salva Foto (PNG)
+            </button>
+          </div>
+        </div>
+
+        ${detailEntries.length > 0 ? `
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2.5">Stazioni, Frazioni & Dati Ufficiali</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              ${detailEntries.map(([k, v]) => `
+                <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-3">
+                  <p class="text-[11px] text-zinc-500">${escapeHtml(k)}</p>
+                  <p class="text-sm font-bold text-white mt-0.5">${escapeHtml(v)}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        ${r.notes ? `
+          <div class="bg-zinc-950/60 border border-zinc-800 rounded-xl p-4">
+            <p class="text-xs font-bold text-zinc-400 mb-1">📝 Note Gara</p>
+            <p class="text-sm text-zinc-300 leading-relaxed">${escapeHtml(r.notes)}</p>
+          </div>
+        ` : ''}
+
+        <div class="flex justify-between items-center pt-3 border-t border-zinc-800">
+          <button type="button" id="btn-delete-race" class="text-xs font-bold text-red-400 active:text-red-300">🗑️ Elimina Gara</button>
+          <button type="button" id="btn-close-detail" class="px-5 py-2.5 rounded-xl text-sm font-bold bg-zinc-800 active:bg-zinc-700 text-white">Chiudi</button>
+        </div>
+      `;
+
+      document.getElementById('btn-share-card').addEventListener('click', () => shareCardPhoto(r));
+      document.getElementById('btn-save-card-img').addEventListener('click', () => downloadCardPhoto(r));
+      document.getElementById('btn-edit-race').addEventListener('click', () => {
+        closeDetailModal();
+        openNewModal(r);
+      });
+      document.getElementById('btn-close-detail-x').addEventListener('click', closeDetailModal);
+      document.getElementById('btn-close-detail').addEventListener('click', closeDetailModal);
+      document.getElementById('btn-delete-race').addEventListener('click', () => {
+        races = races.filter(item => item.id !== r.id);
+        persistAllData();
+        closeDetailModal();
+        syncProfileUI();
+        renderKPIs();
+        renderRaces();
+        renderRankings();
+      });
+
+      document.getElementById('detail-modal').classList.remove('hidden');
+      document.getElementById('detail-modal').classList.add('flex');
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal').classList.add('hidden');
+      document.getElementById('detail-modal').classList.remove('flex');
+    }
+
+    function populateRankingFilters() {
+      const sportSel = document.getElementById('rank-sport');
+      const prevVal = sportSel.value;
+      sportSel.innerHTML = Object.entries(SPORT_CONFIG).map(([k, cfg]) =>
+        `<option value="${escapeAttr(k)}">${cfg.icon} ${cfg.label}</option>`
+      ).join('');
+      if (prevVal && SPORT_CONFIG[prevVal]) sportSel.value = prevVal;
+    }
+
+    function renderRankings() {
+      populateRankingFilters();
+
+      const genderFilter = document.getElementById('rank-gender').value;
+      const sportFilter = document.getElementById('rank-sport').value;
+      const subcatFilter = document.getElementById('rank-subcat').value;
+
+      document.getElementById('rank-sport-wrap').classList.toggle('hidden', rankMode !== 'comp');
+      document.getElementById('rank-subcat-wrap').classList.toggle('hidden', rankMode !== 'comp');
+
+      document.getElementById('rank-mode-general').className = rankMode === 'general'
+        ? 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-zinc-950'
+        : 'px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-400';
+      document.getElementById('rank-mode-comp').className = rankMode === 'comp'
+        ? 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-zinc-950'
+        : 'px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-400';
+
+      const myBadge = getBadgeForCount(races.length);
+      const myPodia = races.filter(r => r.rank && Number(r.rank) <= 3).length;
+      const myPbs = races.filter(r => r.pb).length;
+      const myScore = races.length * 100 + myPodia * 60 + myPbs * 40;
+
+      const listEl = document.getElementById('ranking-list');
+
+      if (rankMode === 'general') {
+        const myEntry = {
+          name: `${profile.name || 'Tu'} (Tu)`,
+          gender: profile.gender || 'Uomo',
+          racesCount: races.length,
+          badge: myBadge,
+          score: myScore,
+          summary: `${races.length} gare • ${myPodia} podi • ${myPbs} PR`,
+          isMe: true
+        };
+
+        const entries = [myEntry]
+          .concat(BENCHMARK_ATHLETES.map(b => ({
+            name: b.name,
+            gender: b.gender,
+            racesCount: b.racesCount,
+            badge: getBadgeForCount(b.racesCount),
+            score: b.racesCount * 100 + (b.pb ? 40 : 0),
+            summary: `${b.racesCount} gare • Best: ${b.title} (${b.result})`,
+            isMe: false
+          })))
+          .filter(e => genderFilter === 'ALL' || e.gender === genderFilter)
+          .sort((a, b) => b.score - a.score);
+
+        listEl.innerHTML = entries.map((item, idx) => `
+          <div class="bg-zinc-900/90 border ${item.isMe ? 'border-emerald-500/60' : 'border-zinc-800'} rounded-2xl p-4 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="w-8 h-8 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-xs font-black ${idx < 3 ? 'text-amber-400' : 'text-zinc-400'} shrink-0">#${idx + 1}</span>
+              <div class="min-w-0">
+                <p class="text-sm font-extrabold text-white truncate">${escapeHtml(item.name)}</p>
+                <p class="text-[11px] text-zinc-400 truncate">${escapeHtml(item.gender)} • ${escapeHtml(item.summary)}</p>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                ${item.badge.icon} ${item.badge.name}
+              </span>
+              <p class="text-xs font-black text-white mt-1">${item.score} pt</p>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        const cfg = SPORT_CONFIG[sportFilter] || SPORT_CONFIG.HYROX;
+        const mySportRaces = races.filter(r => r.sport === sportFilter);
+        const mySportEntries = mySportRaces.map(r => ({
+          name: `${profile.name || 'Tu'} (Tu)`,
+          gender: r.gender || profile.gender || 'Uomo',
+          subcat: r.category || 'Open / Age Group',
+          title: r.title,
+          result: r.result,
+          badge: myBadge,
+          isMe: true
+        }));
+
+        const benchSportEntries = BENCHMARK_ATHLETES
+          .filter(b => b.sport === sportFilter)
+          .map(b => ({
+            name: b.name,
+            gender: b.gender,
+            subcat: b.subcat,
+            title: b.title,
+            result: b.result,
+            badge: getBadgeForCount(b.racesCount),
+            isMe: false
+          }));
+
+        const compRows = mySportEntries.concat(benchSportEntries)
+          .filter(row => genderFilter === 'ALL' || row.gender === genderFilter)
+          .filter(row => subcatFilter === 'ALL' || (row.subcat || '').toLowerCase().includes(subcatFilter.split(' ')[0].toLowerCase()))
+          .sort((a, b) => String(a.result).localeCompare(String(b.result)));
+
+        if (!compRows.length) {
+          listEl.innerHTML = `<div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 text-center text-xs text-zinc-400">Nessun risultato per ${cfg.icon} ${cfg.label} con questi filtri.</div>`;
+        } else {
+          listEl.innerHTML = compRows.map((row, idx) => `
+            <div class="bg-zinc-900/90 border ${row.isMe ? 'border-emerald-500/60' : 'border-zinc-800'} rounded-2xl p-4 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="w-8 h-8 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-xs font-black ${idx < 3 ? 'text-amber-400' : 'text-zinc-400'} shrink-0">#${idx + 1}</span>
+                <div class="min-w-0">
+                  <p class="text-sm font-extrabold text-white truncate">${escapeHtml(row.name)}</p>
+                  <p class="text-[11px] text-zinc-400 truncate">${cfg.icon} ${escapeHtml(row.title)} • ${escapeHtml(row.gender)} • ${escapeHtml(row.subcat)}</p>
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="text-base font-black text-emerald-400">${escapeHtml(row.result)}</p>
+                <span class="text-[10px] font-bold text-zinc-400">${row.badge.icon} ${row.badge.name}</span>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      document.getElementById('badges-legend').innerHTML = BADGE_TIERS.slice().reverse().map(tier => {
+        const unlocked = races.length >= tier.min;
+        return `
+          <div class="bg-zinc-950 border ${unlocked ? 'border-emerald-500/40' : 'border-zinc-800'} rounded-xl p-3 flex items-center gap-2.5 ${unlocked ? '' : 'opacity-60'}">
+            <span class="text-xl">${tier.icon}</span>
+            <div class="min-w-0">
+              <p class="text-xs font-extrabold text-white truncate">${tier.name}</p>
+              <p class="text-[10px] text-zinc-400 truncate">${tier.desc}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function exportData() {
+      persistAllData();
+      const dataStr = JSON.stringify({ profile, races }, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `AthleteHub_Backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported)) {
+            races = imported;
+          } else if (imported && Array.isArray(imported.races)) {
+            races = imported.races;
+            if (imported.profile) profile = Object.assign({}, DEFAULT_PROFILE, imported.profile);
+          }
+          persistAllData();
+          syncProfileUI();
+          renderKPIs();
+          renderRaces();
+          renderRankings();
+        } catch (err) {}
+      };
+      reader.readAsText(file);
+    }
+
+    // Event listeners
+    document.getElementById('tab-login').addEventListener('click', () => switchAuthTab('login'));
+    document.getElementById('tab-register').addEventListener('click', () => switchAuthTab('register'));
+    document.getElementById('login-form').addEventListener('submit', handleLoginAction);
+    document.getElementById('btn-login-submit').addEventListener('click', handleLoginAction);
+    document.getElementById('register-form').addEventListener('submit', handleRegisterAction);
+    document.getElementById('btn-register-submit').addEventListener('click', handleRegisterAction);
+    document.getElementById('btn-demo').addEventListener('click', openApp);
+
+    document.querySelectorAll('.nav-tab').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+    });
+
+    document.getElementById('header-avatar-btn').addEventListener('click', () => switchTab('profile'));
+    document.getElementById('btn-save-now').addEventListener('click', persistAllData);
+    document.getElementById('btn-open-new').addEventListener('click', () => openNewModal());
+    document.getElementById('btn-open-new-2').addEventListener('click', () => openNewModal());
+    document.getElementById('btn-close-new').addEventListener('click', closeNewModal);
+    document.getElementById('btn-cancel-new').addEventListener('click', closeNewModal);
+    document.getElementById('race-form').addEventListener('submit', saveRace);
+    document.getElementById('btn-logout').addEventListener('click', handleLogout);
+    document.getElementById('btn-export').addEventListener('click', exportData);
+    document.getElementById('input-import').addEventListener('change', importData);
+    document.getElementById('search-input').addEventListener('input', renderRaces);
+
+    document.getElementById('form-sport').addEventListener('change', () => {
+      syncPresetSelect();
+      renderDynamicFields({});
+    });
+    document.getElementById('form-preset').addEventListener('change', updateCustomNamePlaceholder);
+
+    document.getElementById('rank-mode-general').addEventListener('click', () => {
+      rankMode = 'general';
+      renderRankings();
+    });
+    document.getElementById('rank-mode-comp').addEventListener('click', () => {
+      rankMode = 'comp';
+      renderRankings();
+    });
+    document.getElementById('rank-gender').addEventListener('change', renderRankings);
+    document.getElementById('rank-sport').addEventListener('change', renderRankings);
+    document.getElementById('rank-subcat').addEventListener('change', renderRankings);
+
+    document.getElementById('profile-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      profile.name = (document.getElementById('prof-name').value || '').trim() || 'Atleta';
+      profile.gender = document.getElementById('prof-gender').value || 'Uomo';
+      profile.weight = (document.getElementById('prof-weight').value || '').trim();
+      profile.height = (document.getElementById('prof-height').value || '').trim();
+      profile.vo2 = (document.getElementById('prof-vo2').value || '').trim();
+      profile.goal = (document.getElementById('prof-goal').value || '').trim();
+      persistAllData();
+      syncProfileUI();
+      renderRankings();
+      const msg = document.getElementById('prof-saved-msg');
+      msg.classList.remove('hidden');
+      setTimeout(() => msg.classList.add('hidden'), 1800);
+    });
+
+    document.getElementById('profile-photo-input').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        profile.photo = ev.target.result;
+        persistAllData();
+        syncProfileUI();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    window.addEventListener('pagehide', persistAllData);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) persistAllData();
+    });
+
+    loadPersistentData();
+    try {
+      if (localStorage.getItem(STORAGE_LOGGED_KEY) === '1') {
+        openApp();
+      }
+    } catch (e) {}
+  </script>
+</body>
+</html>
