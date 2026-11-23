@@ -20,11 +20,22 @@
       margin: 0;
       padding: 0;
     }
-    button, input, select, textarea {
+    button, input, select, textarea, label {
       touch-action: manipulation;
       pointer-events: auto;
     }
     button { cursor: pointer; }
+    input[type="date"].uniform-field,
+    input[type="text"].uniform-field,
+    input[type="number"].uniform-field,
+    select.uniform-field {
+      height: 44px;
+      min-height: 44px;
+      width: 100%;
+      min-width: 0;
+      -webkit-appearance: none;
+      appearance: none;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -34,7 +45,7 @@
     <div class="max-w-md w-full mx-auto bg-zinc-900/95 border border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-5">
       <div class="text-center space-y-1">
         <h1 class="text-2xl font-black text-white">Athlete<span class="text-emerald-400">Hub</span></h1>
-        <p class="text-xs text-zinc-400">HYROX • DEKA • Deadly Dozen • Spartan • IRONMAN • Maratone • StraMilano</p>
+        <p class="text-xs text-zinc-400">HYROX • DEKA • ATHX • OCEANMAN • Deadly Dozen • Spartan • IRONMAN • Maratone</p>
       </div>
 
       <div class="grid grid-cols-2 bg-zinc-950 p-1 rounded-xl border border-zinc-800">
@@ -45,14 +56,14 @@
       <form id="login-form" class="space-y-3">
         <div>
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Email</label>
-          <input type="email" id="login-email" autocomplete="email" placeholder="atleta@esempio.it" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+          <input type="email" id="login-email" autocomplete="email" placeholder="atleta@esempio.it" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-sm text-white focus:border-emerald-500 focus:outline-none" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Password</label>
-          <input type="password" id="login-password" autocomplete="current-password" placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+          <input type="password" id="login-password" autocomplete="current-password" placeholder="••••••••" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-sm text-white focus:border-emerald-500 focus:outline-none" />
         </div>
         <p id="login-msg" class="text-xs text-amber-400 hidden"></p>
-        <button type="submit" id="btn-login-submit" class="w-full py-3 rounded-xl text-sm font-extrabold bg-emerald-500 active:bg-emerald-400 text-zinc-950">
+        <button type="submit" id="btn-login-submit" class="w-full h-11 rounded-xl text-sm font-extrabold bg-emerald-500 active:bg-emerald-400 text-zinc-950">
           Entra in AthleteHub →
         </button>
       </form>
@@ -60,89 +71,288 @@
       <form id="register-form" class="hidden space-y-3">
         <div>
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Nome e Cognome</label>
-          <input type="text" id="reg-name" placeholder="es. Marco Rossi" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+          <input type="text" id="reg-name" placeholder="es. Anthony Rossi" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-400 mb-1">Sesso</label>
+          <select id="reg-gender" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-sm text-white focus:border-emerald-500 focus:outline-none">
+            <option value="Uomo">Uomo</option>
+            <option value="Donna">Donna</option>
+          </select>
         </div>
         <div>
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Email</label>
-          <input type="email" id="reg-email" autocomplete="email" placeholder="atleta@esempio.it" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+          <input type="email" id="reg-email" autocomplete="email" placeholder="atleta@esempio.it" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-sm text-white focus:border-emerald-500 focus:outline-none" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Password (min. 6 caratteri)</label>
-          <input type="password" id="reg-password" autocomplete="new-password" placeholder="Crea una password" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+          <input type="password" id="reg-password" autocomplete="new-password" placeholder="Crea una password" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-sm text-white focus:border-emerald-500 focus:outline-none" />
         </div>
         <p id="reg-msg" class="text-xs hidden"></p>
-        <button type="submit" id="btn-register-submit" class="w-full py-3 rounded-xl text-sm font-extrabold bg-emerald-500 active:bg-emerald-400 text-zinc-950">
+        <button type="submit" id="btn-register-submit" class="w-full h-11 rounded-xl text-sm font-extrabold bg-emerald-500 active:bg-emerald-400 text-zinc-950">
           Crea Account
         </button>
       </form>
 
-      <button type="button" id="btn-demo" class="w-full py-3 rounded-xl text-xs font-bold bg-zinc-950 border border-zinc-700 text-zinc-200 active:bg-zinc-800">
+      <button type="button" id="btn-demo" class="w-full h-11 rounded-xl text-xs font-bold bg-zinc-950 border border-zinc-700 text-zinc-200 active:bg-zinc-800">
         🚀 Prova Subito (Modalità Demo)
       </button>
     </div>
   </div>
 
   <!-- APP PRINCIPALE -->
-  <div id="app-screen" class="hidden min-h-screen flex-col">
-    <header class="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur sticky top-0 z-30 pt-9 sm:pt-0">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0">
-            <span class="text-lg font-black text-zinc-950">AH</span>
-          </div>
-          <div>
-            <span class="text-xl font-black tracking-tight text-white">Athlete<span class="text-emerald-400">Hub</span></span>
-            <p id="athlete-label" class="text-[11px] text-zinc-400">Registro Gare & Competizioni Multisport</p>
+  <div id="app-screen" class="hidden min-h-screen flex-col pb-24">
+    <!-- TOP HEADER CON PROFILO -->
+    <header class="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur sticky top-0 z-30 pt-9 sm:pt-3">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <button type="button" id="header-avatar-btn" class="w-11 h-11 rounded-full border-2 border-emerald-500/70 bg-zinc-900 overflow-hidden flex items-center justify-center shrink-0">
+            <img id="header-avatar-img" src="" alt="Avatar" class="w-full h-full object-cover hidden" />
+            <span id="header-avatar-fallback" class="text-sm font-black text-emerald-400">AH</span>
+          </button>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="header-greeting" class="text-base sm:text-lg font-black text-white truncate">Ciao, Atleta</span>
+              <span id="header-badge-pill" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">🌱 Esordiente</span>
+            </div>
+            <p id="header-metrics" class="text-[11px] text-zinc-400 truncate">Uomo • 0 gare salvate</p>
           </div>
         </div>
 
-        <div class="flex items-center gap-1.5 sm:gap-2.5 flex-wrap">
-          <button type="button" id="btn-export" class="px-2.5 py-2 text-xs font-semibold rounded-lg bg-zinc-900 active:bg-zinc-800 text-zinc-300 border border-zinc-800">
-            ⬇️ Esporta
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" id="btn-save-now" class="px-2.5 py-2 text-xs font-bold rounded-lg bg-zinc-900 text-emerald-400 border border-zinc-800 active:bg-zinc-800">
+            💾 Salva
           </button>
-          <label class="px-2.5 py-2 text-xs font-semibold rounded-lg bg-zinc-900 active:bg-zinc-800 text-zinc-300 border border-zinc-800 cursor-pointer">
-            <span>⬆️ Importa</span>
-            <input type="file" id="input-import" accept=".json" class="hidden" />
-          </label>
           <button type="button" id="btn-open-new" class="px-3.5 py-2 text-xs sm:text-sm font-bold rounded-lg bg-emerald-500 active:bg-emerald-400 text-zinc-950 shadow-lg shadow-emerald-500/20">
             + Registra Gara
-          </button>
-          <button type="button" id="btn-logout" class="px-2.5 py-2 text-xs font-bold rounded-lg bg-zinc-900 text-red-400 border border-zinc-800 active:bg-zinc-800">
-            Esci
           </button>
         </div>
       </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      <section id="kpi-container" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></section>
+    <!-- CONTENUTO PRINCIPALE -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6">
 
-      <section class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800/80">
-        <div id="sport-filters" class="flex flex-wrap gap-2"></div>
-        <div class="w-full md:w-72 relative">
-          <input type="text" id="search-input" placeholder="Cerca gara, città, note..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500" />
+      <!-- TAB 1: HOME -->
+      <section id="view-home" class="space-y-6">
+        <div class="bg-gradient-to-br from-emerald-950/45 via-zinc-900 to-zinc-950 border border-emerald-500/25 rounded-2xl p-4 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">Prossima Sfida / Obiettivo</p>
+            <p id="home-goal-title" class="text-base font-black text-white truncate mt-0.5">HYROX Milano • Stagione 2026/2027</p>
+            <p id="home-goal-sub" class="text-xs text-zinc-400 truncate">Tocca Profilo per modificare obiettivo o foto</p>
+          </div>
+          <span id="home-save-status" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
+            ✓ Salvato
+          </span>
+        </div>
+
+        <div id="kpi-container" class="grid grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
+
+        <div class="flex flex-col md:flex-row gap-3 justify-between items-stretch md:items-center bg-zinc-900/60 p-3.5 rounded-2xl border border-zinc-800/80">
+          <div id="home-sport-filters" class="flex flex-wrap gap-1.5"></div>
+          <div class="w-full md:w-72">
+            <input type="text" id="search-input" placeholder="Cerca gara, città, note..." class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-extrabold uppercase tracking-wider text-zinc-300">Ultime Gare & Record</h2>
+            <span id="home-races-count" class="text-xs text-zinc-400"></span>
+          </div>
+          <div id="races-grid-home" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
         </div>
       </section>
 
-      <section id="races-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></section>
+      <!-- TAB 2: GARE -->
+      <section id="view-races" class="hidden space-y-5">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <h2 class="text-xl font-black text-white">Tutte le tue Gare</h2>
+            <p class="text-xs text-zinc-400">Tocca una gara per vedere i tempi delle stazioni o modificarla.</p>
+          </div>
+          <button type="button" id="btn-open-new-2" class="px-4 py-2 text-xs font-extrabold rounded-xl bg-emerald-500 text-zinc-950">
+            + Nuova Gara
+          </button>
+        </div>
+        <div id="races-grid-all" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </section>
+
+      <!-- TAB 3: CLASSIFICHE -->
+      <section id="view-rankings" class="hidden space-y-5">
+        <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-xl font-black text-white">Classifiche & Badge</h2>
+              <p class="text-xs text-zinc-400">Classifica generale e classifica per competizione, sesso e sottocategoria.</p>
+            </div>
+            <div class="grid grid-cols-2 bg-zinc-950 p-1 rounded-xl border border-zinc-800">
+              <button type="button" id="rank-mode-general" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-zinc-950">Generale</button>
+              <button type="button" id="rank-mode-comp" class="px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-400">Per Competizione</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-zinc-400 mb-1">Sesso</label>
+              <select id="rank-gender" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3 text-xs text-white focus:border-emerald-500 focus:outline-none">
+                <option value="ALL">Tutti (Uomo & Donna)</option>
+                <option value="Uomo">Uomo</option>
+                <option value="Donna">Donna</option>
+              </select>
+            </div>
+            <div id="rank-sport-wrap" class="hidden">
+              <label class="block text-[11px] font-bold text-zinc-400 mb-1">Competizione</label>
+              <select id="rank-sport" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3 text-xs text-white focus:border-emerald-500 focus:outline-none"></select>
+            </div>
+            <div id="rank-subcat-wrap" class="hidden">
+              <label class="block text-[11px] font-bold text-zinc-400 mb-1">Sottocategoria / Divisione</label>
+              <select id="rank-subcat" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3 text-xs text-white focus:border-emerald-500 focus:outline-none">
+                <option value="ALL">Tutte le sottocategorie</option>
+                <option value="Singles / Individual">Singles / Individual</option>
+                <option value="Doubles / Pairs">Doubles / Pairs</option>
+                <option value="Pro / Elite">Pro / Elite</option>
+                <option value="Open / Age Group">Open / Age Group</option>
+                <option value="Relay / Team">Relay / Team</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="ranking-list" class="space-y-3"></div>
+
+        <!-- LEGENDA BADGE -->
+        <div class="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-4 space-y-3">
+          <h3 class="text-sm font-extrabold text-white">Badge per Numero di Competizioni</h3>
+          <div id="badges-legend" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
+        </div>
+      </section>
+
+      <!-- TAB 4: PROFILO -->
+      <section id="view-profile" class="hidden space-y-5">
+        <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 space-y-5">
+          <div class="flex items-center gap-4">
+            <div class="relative shrink-0">
+              <div class="w-20 h-20 rounded-full border-2 border-emerald-500 bg-zinc-950 overflow-hidden flex items-center justify-center">
+                <img id="profile-avatar-img" src="" alt="Foto profilo" class="w-full h-full object-cover hidden" />
+                <span id="profile-avatar-fallback" class="text-2xl font-black text-emerald-400">AH</span>
+              </div>
+              <label for="profile-photo-input" class="mt-2 block text-center text-[11px] font-bold text-emerald-400 cursor-pointer">
+                📷 Cambia foto
+              </label>
+              <input type="file" id="profile-photo-input" accept="image/*" class="hidden" />
+            </div>
+
+            <div class="space-y-1 min-w-0 flex-1">
+              <h2 id="profile-display-name" class="text-xl font-black text-white truncate">Atleta</h2>
+              <p id="profile-display-meta" class="text-xs text-zinc-400">Uomo • 0 gare</p>
+              <div id="profile-current-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 mt-1">
+                🌱 Esordiente (0 gare)
+              </div>
+            </div>
+          </div>
+
+          <form id="profile-form" class="space-y-3 border-t border-zinc-800 pt-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-zinc-400 mb-1">Nome Atleta</label>
+                <input type="text" id="prof-name" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-zinc-400 mb-1">Sesso</label>
+                <select id="prof-gender" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 text-sm text-white focus:border-emerald-500 focus:outline-none">
+                  <option value="Uomo">Uomo</option>
+                  <option value="Donna">Donna</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-zinc-400 mb-1">Peso (kg)</label>
+                <input type="text" id="prof-weight" placeholder="es. 79.5 kg" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-zinc-400 mb-1">Altezza (cm)</label>
+                <input type="text" id="prof-height" placeholder="es. 182 cm" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-zinc-400 mb-1">VO2 / Focus</label>
+                <input type="text" id="prof-vo2" placeholder="es. VO2 54" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-zinc-400 mb-1">Prossima Sfida / Obiettivo</label>
+              <input type="text" id="prof-goal" placeholder="es. HYROX Milano • 13 Dicembre" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+            </div>
+
+            <div class="flex items-center gap-3 pt-1">
+              <button type="submit" class="px-5 h-11 rounded-xl text-sm font-extrabold bg-emerald-500 active:bg-emerald-400 text-zinc-950">
+                Salva Profilo
+              </button>
+              <span id="prof-saved-msg" class="text-xs text-emerald-400 hidden">✓ Profilo salvato</span>
+            </div>
+          </form>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 border-t border-zinc-800 pt-4">
+            <div class="flex items-center gap-2 flex-wrap">
+              <button type="button" id="btn-export" class="px-3 py-2 text-xs font-semibold rounded-lg bg-zinc-950 text-zinc-300 border border-zinc-800">
+                ⬇️ Esporta Backup JSON
+              </button>
+              <label class="px-3 py-2 text-xs font-semibold rounded-lg bg-zinc-950 text-zinc-300 border border-zinc-800 cursor-pointer">
+                <span>⬆️ Importa JSON</span>
+                <input type="file" id="input-import" accept=".json" class="hidden" />
+              </label>
+            </div>
+            <button type="button" id="btn-logout" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-zinc-950 text-red-400 border border-zinc-800">
+              Esci
+            </button>
+          </div>
+        </div>
+      </section>
     </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="fixed bottom-0 inset-x-0 bg-zinc-950/95 border-t border-zinc-800 z-30 pb-5 pt-2">
+      <div class="max-w-md mx-auto grid grid-cols-4 gap-1 px-2">
+        <button type="button" data-tab="home" class="nav-tab flex flex-col items-center py-1 text-emerald-400">
+          <span class="text-base">🏠</span>
+          <span class="text-[10px] font-bold mt-0.5">Home</span>
+        </button>
+        <button type="button" data-tab="races" class="nav-tab flex flex-col items-center py-1 text-zinc-400">
+          <span class="text-base">🏁</span>
+          <span class="text-[10px] font-bold mt-0.5">Gare</span>
+        </button>
+        <button type="button" data-tab="rankings" class="nav-tab flex flex-col items-center py-1 text-zinc-400">
+          <span class="text-base">🏆</span>
+          <span class="text-[10px] font-bold mt-0.5">Classifiche</span>
+        </button>
+        <button type="button" data-tab="profile" class="nav-tab flex flex-col items-center py-1 text-zinc-400">
+          <span class="text-base">👤</span>
+          <span class="text-[10px] font-bold mt-0.5">Profilo</span>
+        </button>
+      </div>
+    </nav>
   </div>
 
-  <!-- MODAL: NUOVA GARA -->
+  <!-- MODAL: NUOVA / MODIFICA GARA -->
   <div id="new-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-start justify-center p-4 pt-10 overflow-y-auto">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full p-6 space-y-5 my-6 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
-        <h2 class="text-xl font-extrabold text-white">Registra Nuova Competizione</h2>
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full p-5 sm:p-6 space-y-4 my-6 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+        <h2 id="modal-form-title" class="text-xl font-extrabold text-white">Registra Nuova Competizione</h2>
         <button type="button" id="btn-close-new" class="text-zinc-400 active:text-white text-2xl font-bold px-2">&times;</button>
       </div>
 
       <form id="race-form" class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Disciplina / Competizione</label>
-            <select id="form-sport" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">Disciplina / Competizione</label>
+            <select id="form-sport" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 text-sm text-white focus:outline-none focus:border-emerald-500">
               <option value="HYROX">⚡ HYROX</option>
               <option value="DEKA">🔥 DEKA</option>
+              <option value="ATHX">🏋️‍♂️ ATHX</option>
+              <option value="OCEANMAN">🌊 OCEANMAN</option>
               <option value="DEADLY_DOZEN">💀 Deadly Dozen</option>
               <option value="SPARTAN">🛡️ Spartan Race</option>
               <option value="IRONMAN_FULL">🏊‍♂️ IRONMAN (Full)</option>
@@ -157,43 +367,60 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Gara / Evento specifico</label>
-            <select id="form-preset" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"></select>
+            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">Gara / Evento specifico</label>
+            <select id="form-preset" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 text-sm text-white focus:outline-none focus:border-emerald-500"></select>
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-semibold text-zinc-400 mb-1">Nome Evento / Gara (scrivi qui se non esiste o vuoi personalizzarlo)</label>
-          <input type="text" id="form-title" placeholder="Scrivi qui il nome della gara..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+          <input type="text" id="form-title" placeholder="Scrivi qui il nome della gara..." class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
             <label class="block text-xs font-semibold text-zinc-400 mb-1">Data *</label>
-            <input type="date" id="form-date" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+            <input type="date" id="form-date" required class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
           </div>
           <div>
             <label class="block text-xs font-semibold text-zinc-400 mb-1">Luogo / Città</label>
-            <input type="text" id="form-location" placeholder="es. Milano, Italia" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-zinc-400 mb-1">Categoria / Divisione</label>
-            <input type="text" id="form-category" placeholder="es. Men Open / Age Group" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+            <input type="text" id="form-location" placeholder="es. Milano, Italia" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-zinc-950/60 p-4 rounded-xl border border-zinc-800/80">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-semibold text-zinc-400 mb-1">Sesso Classifica</label>
+            <select id="form-gender" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 text-sm text-white focus:border-emerald-500 focus:outline-none">
+              <option value="Uomo">Uomo</option>
+              <option value="Donna">Donna</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-zinc-400 mb-1">Sottocategoria / Divisione</label>
+            <input type="text" id="form-category" list="subcat-suggestions" placeholder="es. Singles / Doubles / Pro / Age Group" class="uniform-field bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+            <datalist id="subcat-suggestions">
+              <option value="Singles / Individual"></option>
+              <option value="Doubles / Pairs"></option>
+              <option value="Pro / Elite"></option>
+              <option value="Open / Age Group"></option>
+              <option value="Relay / Team"></option>
+            </datalist>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 bg-zinc-950/60 p-4 rounded-xl border border-zinc-800/80">
           <div>
             <label class="block text-xs font-semibold text-emerald-400 mb-1">Risultato / Tempo Finale *</label>
-            <input type="text" id="form-result" required placeholder="es. 01:09:15 / 09:45:12" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-emerald-500 focus:outline-none" />
+            <input type="text" id="form-result" required placeholder="es. 01:09:15 / 02:14:10" class="uniform-field bg-zinc-900 border border-zinc-700 rounded-lg px-3 text-sm font-bold text-white focus:border-emerald-500 focus:outline-none" />
           </div>
           <div>
             <label class="block text-xs font-semibold text-zinc-400 mb-1">Posizione Classifica</label>
-            <input type="number" id="form-rank" placeholder="es. 1" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+            <input type="number" id="form-rank" placeholder="es. 1" class="uniform-field bg-zinc-900 border border-zinc-800 rounded-lg px-3 text-sm text-white focus:border-emerald-500 focus:outline-none" />
           </div>
           <div>
             <label class="block text-xs font-semibold text-zinc-400 mb-1">Totale Partecipanti</label>
-            <input type="number" id="form-total" placeholder="es. 120" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+            <input type="number" id="form-total" placeholder="es. 120" class="uniform-field bg-zinc-900 border border-zinc-800 rounded-lg px-3 text-sm text-white focus:border-emerald-500 focus:outline-none" />
           </div>
         </div>
 
@@ -210,8 +437,8 @@
         </div>
 
         <div class="flex justify-end gap-3 pt-2 border-t border-zinc-800">
-          <button type="button" id="btn-cancel-new" class="px-4 py-2 rounded-xl text-sm font-semibold text-zinc-400 active:text-white">Annulla</button>
-          <button type="submit" class="px-6 py-2 rounded-xl text-sm font-bold bg-emerald-500 active:bg-emerald-400 text-zinc-950 shadow-lg shadow-emerald-500/20">Salva Gara</button>
+          <button type="button" id="btn-cancel-new" class="px-4 h-11 rounded-xl text-sm font-semibold text-zinc-400 active:text-white">Annulla</button>
+          <button type="submit" id="btn-save-race-submit" class="px-6 h-11 rounded-xl text-sm font-extrabold bg-emerald-500 active:bg-emerald-400 text-zinc-950 shadow-lg shadow-emerald-500/20">Salva Gara</button>
         </div>
       </form>
     </div>
@@ -233,24 +460,45 @@
       }
     } catch (e) {}
 
+    const STORAGE_RACES_KEY = 'athletehub_persistent_races_v4';
+    const STORAGE_PROFILE_KEY = 'athletehub_persistent_profile_v4';
+
+    const BADGE_TIERS = [
+      { min: 20, icon: '👑', name: 'Legend', desc: '20+ competizioni' },
+      { min: 10, icon: '🔥', name: 'Iron Grinder', desc: '10–19 competizioni' },
+      { min: 6,  icon: '🥇', name: 'Finisher', desc: '6–9 competizioni' },
+      { min: 3,  icon: '🥈', name: 'Challenger', desc: '3–5 competizioni' },
+      { min: 1,  icon: '🥉', name: 'Rookie', desc: '1–2 competizioni' },
+      { min: 0,  icon: '🌱', name: 'Esordiente', desc: '0 competizioni' }
+    ];
+
+    function getBadgeForCount(count) {
+      const n = Number(count) || 0;
+      return BADGE_TIERS.find(t => n >= t.min) || BADGE_TIERS[BADGE_TIERS.length - 1];
+    }
+
     const SPORT_CONFIG = {
       HYROX: { label: 'HYROX', icon: '⚡', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30' },
       DEKA: { label: 'DEKA', icon: '🔥', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30' },
+      ATHX: { label: 'ATHX', icon: '🏋️‍♂️', color: 'text-fuchsia-400', bg: 'bg-fuchsia-500/10', border: 'border-fuchsia-500/30' },
+      OCEANMAN: { label: 'OCEANMAN', icon: '🌊', color: 'text-sky-400', bg: 'bg-sky-500/10', border: 'border-sky-500/30' },
       DEADLY_DOZEN: { label: 'Deadly Dozen', icon: '💀', color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30' },
       SPARTAN: { label: 'Spartan Race', icon: '🛡️', color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/30' },
-      IRONMAN_FULL: { label: 'IRONMAN (Full)', icon: '🏊‍♂️', color: 'text-sky-400', bg: 'bg-sky-500/10', border: 'border-sky-500/30' },
+      IRONMAN_FULL: { label: 'IRONMAN (Full)', icon: '🏊‍♂️', color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30' },
       IRONMAN_703: { label: 'Mezzo IRONMAN (70.3)', icon: '🚴‍♂️', color: 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'border-indigo-500/30' },
       TRIATHLON: { label: 'Triathlon', icon: '🏅', color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30' },
       MARATHON: { label: 'Maratone', icon: '🏃‍♂️', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' },
       STRAMILANO: { label: 'StraMilano', icon: '🌆', color: 'text-lime-400', bg: 'bg-lime-500/10', border: 'border-lime-500/30' },
       RUNNING: { label: 'Corsa Generica', icon: '🏃', color: 'text-teal-400', bg: 'bg-teal-500/10', border: 'border-teal-500/30' },
-      ROWING: { label: 'Vogatore', icon: '🚣', color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30' },
+      ROWING: { label: 'Vogatore', icon: '🚣', color: 'text-cyan-300', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30' },
       POWERLIFTING: { label: 'Powerlifting', icon: '🏋️', color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30' }
     };
 
     const PRESETS_BY_SPORT = {
       HYROX: ['HYROX Singles', 'HYROX Doubles', 'HYROX Pro', 'HYROX Relay', 'Altra gara HYROX (scrivi sotto)'],
       DEKA: ['DEKA FIT', 'DEKA STRONG', 'DEKA MILE', 'Altra gara DEKA (scrivi sotto)'],
+      ATHX: ['ATHX Games', 'ATHX Endurance', 'ATHX Sprint', 'ATHX Pairs / Team', 'Altra gara ATHX (scrivi sotto)'],
+      OCEANMAN: ['OCEANMAN 10 km', 'Half OCEANMAN 5 km', 'OCEANMAN Sprint 2 km', 'OCEANKIDS', 'Altra gara OCEANMAN (scrivi sotto)'],
       DEADLY_DOZEN: ['Deadly Dozen Individual', 'Deadly Dozen Team / Pairs', 'Altra gara Deadly Dozen (scrivi sotto)'],
       SPARTAN: ['Spartan Sprint (5 km)', 'Spartan Super (10 km)', 'Spartan Beast (21 km)', 'Spartan Ultra (50 km)', 'Altra Spartan Race (scrivi sotto)'],
       IRONMAN_FULL: ['IRONMAN Full Distance (226 km)', 'IRONMAN Emilia-Romagna', 'Altro IRONMAN Full (scrivi sotto)'],
@@ -298,680 +546,18 @@
         { key: 'Z9 Tank Push/Pull', placeholder: 'es. 01:40' },
         { key: 'Z10 RAM Burpees', placeholder: 'es. 02:15' }
       ],
-      DEADLY_DOZEN: [
-        { key: 'Station 1: SkiErg', placeholder: 'es. 03:50' },
-        { key: 'Station 2: RowErg', placeholder: 'es. 03:45' },
-        { key: 'Station 3: BikeErg', placeholder: 'es. 04:10' },
-        { key: 'Station 4: Sled Push', placeholder: 'es. 02:35' },
-        { key: 'Station 5: Sled Pull', placeholder: 'es. 03:55' },
-        { key: 'Station 6: Farmers Carry', placeholder: 'es. 01:50' },
-        { key: 'Station 7: Sandbag Lunges', placeholder: 'es. 04:05' },
-        { key: 'Station 8: Wall Balls', placeholder: 'es. 03:50' },
-        { key: 'Station 9: Devil Press / Burpees', placeholder: 'es. 03:30' },
-        { key: 'Station 10: KB / DB Carry', placeholder: 'es. 01:45' },
-        { key: 'Station 11: Box Jumps / Step-Overs', placeholder: 'es. 02:20' },
-        { key: 'Station 12: Thrusters / Finisher', placeholder: 'es. 03:15' }
+      ATHX: [
+        { key: 'Station / Round 1', placeholder: 'es. 02:30' },
+        { key: 'Station / Round 2', placeholder: 'es. 02:45' },
+        { key: 'Station / Round 3', placeholder: 'es. 03:00' },
+        { key: 'Station / Round 4', placeholder: 'es. 02:20' },
+        { key: 'Station / Round 5', placeholder: 'es. 02:55' },
+        { key: 'Station / Round 6', placeholder: 'es. 03:10' }
       ],
-      SPARTAN: [
-        { key: 'Frazione / Ostacoli 1', placeholder: 'es. 00:18:20' },
-        { key: 'Frazione / Ostacoli 2', placeholder: 'es. 00:22:10' },
-        { key: 'Frazione / Ostacoli 3', placeholder: 'es. 00:25:05' },
-        { key: 'Frazione / Ostacoli 4', placeholder: 'es. 00:19:40' },
-        { key: 'Arrivo / Finisher', placeholder: 'es. 01:25:35' }
+      OCEANMAN: [
+        { key: 'Start / Boa 1', placeholder: 'es. 00:18:10' },
+        { key: 'Boa Intermedia', placeholder: 'es. 00:42:30' },
+        { key: 'Uscita / Rifornimento', placeholder: 'es. 01:15:00' },
+        { key: 'Traguardo Acque Libere', placeholder: 'es. 02:14:10' }
       ],
-      IRONMAN_FULL: [
-        { key: 'Nuoto (3.8 km)', placeholder: 'es. 01:12:00' },
-        { key: 'T1 (Transizione 1)', placeholder: 'es. 00:05:10' },
-        { key: 'Ciclismo (180 km)', placeholder: 'es. 05:18:30' },
-        { key: 'T2 (Transizione 2)', placeholder: 'es. 00:04:45' },
-        { key: 'Corsa / Maratona (42.2 km)', placeholder: 'es. 03:42:15' }
-      ],
-      IRONMAN_703: [
-        { key: 'Nuoto (1.9 km)', placeholder: 'es. 00:34:20' },
-        { key: 'T1 (Transizione 1)', placeholder: 'es. 00:03:10' },
-        { key: 'Ciclismo (90 km)', placeholder: 'es. 02:32:40' },
-        { key: 'T2 (Transizione 2)', placeholder: 'es. 00:02:50' },
-        { key: 'Corsa / Mezza Maratona (21.1 km)', placeholder: 'es. 01:41:10' }
-      ],
-      TRIATHLON: [
-        { key: 'Nuoto', placeholder: 'es. 00:24:10' },
-        { key: 'T1', placeholder: 'es. 00:02:10' },
-        { key: 'Ciclismo', placeholder: 'es. 01:05:30' },
-        { key: 'T2', placeholder: 'es. 00:01:45' },
-        { key: 'Corsa', placeholder: 'es. 00:41:20' }
-      ],
-      MARATHON: [
-        { key: '10 km', placeholder: 'es. 00:42:10' },
-        { key: '21.1 km (Mezza)', placeholder: 'es. 01:29:30' },
-        { key: '30 km', placeholder: 'es. 02:08:00' },
-        { key: '42.2 km (Arrivo)', placeholder: 'es. 03:02:45' }
-      ],
-      STRAMILANO: [
-        { key: '5 km', placeholder: 'es. 00:21:15' },
-        { key: '10 km', placeholder: 'es. 00:43:05' },
-        { key: 'Arrivo', placeholder: 'es. 01:32:40' }
-      ],
-      RUNNING: [
-        { key: 'Distanza', placeholder: 'es. 10 km / 21.1 km' },
-        { key: 'Passo Medio', placeholder: 'es. 4:10 /km' },
-        { key: 'Dislivello D+', placeholder: 'es. 250 m' },
-        { key: 'FC Media', placeholder: 'es. 168 bpm' }
-      ],
-      ROWING: [
-        { key: 'Distanza', placeholder: 'es. 200m / 2000m' },
-        { key: 'Potenza Media', placeholder: 'es. 915 W' },
-        { key: 'Passo /500m', placeholder: 'es. 1:12.2' },
-        { key: 'Frequenza', placeholder: 'es. 48 s/m' }
-      ],
-      POWERLIFTING: [
-        { key: 'Squat', placeholder: 'es. 210 kg' },
-        { key: 'Panca Piana', placeholder: 'es. 140 kg' },
-        { key: 'Stacco da Terra', placeholder: 'es. 245 kg' },
-        { key: 'Punti GL / DOTS', placeholder: 'es. 408.5' }
-      ]
-    };
-
-    const DEFAULT_RACES = [
-      {
-        id: '1',
-        sport: 'HYROX',
-        title: 'HYROX Milano',
-        date: '2026-09-20',
-        location: 'Fiera Milano Rho',
-        category: 'Men Open',
-        result: '01:09:15',
-        rank: 18,
-        total: 450,
-        pb: true,
-        notes: 'Ottima gestione delle corse e chiusura Wall Balls unbroken.',
-        details: {
-          '1. SkiErg (1000m)': '03:58',
-          '2. Sled Push (50m)': '02:45',
-          '3. Sled Pull (50m)': '04:10',
-          '4. Burpee Broad Jumps (80m)': '03:50',
-          '5. Rowing (1000m)': '03:55',
-          '6. Farmers Carry (200m)': '01:52',
-          '7. Sandbag Lunges (100m)': '04:20',
-          '8. Wall Balls (75/100)': '04:10'
-        }
-      },
-      {
-        id: '2',
-        sport: 'DEKA',
-        title: 'DEKA FIT Italy',
-        date: '2026-06-14',
-        location: 'Bologna',
-        category: 'Elite Men',
-        result: '00:36:40',
-        rank: 5,
-        total: 95,
-        pb: false,
-        notes: 'Ritmo alto fin dalla Zona 1.',
-        details: {
-          'Z1 RAM Lunges': '01:45',
-          'Z2 Row 500m': '01:42',
-          'Z3 Box Step-Overs': '01:30',
-          'Z4 Med Ball Sit-Ups': '01:25',
-          'Z5 SkiErg 500m': '01:48',
-          'Z6 Farmers Carry': '01:10',
-          'Z7 Air Bike 25 Cal': '01:35',
-          'Z8 Dead Ball Over': '01:50',
-          'Z9 Tank Push/Pull': '01:40',
-          'Z10 RAM Burpees': '02:15'
-        }
-      },
-      {
-        id: '3',
-        sport: 'ROWING',
-        title: 'Challenge 200m Sprint Indoor',
-        date: '2026-10-18',
-        location: 'Monza, Italia',
-        category: 'Open Men',
-        result: '00:28.9',
-        rank: 1,
-        total: 42,
-        pb: true,
-        notes: 'Partenza esplosiva nei primi colpi.',
-        details: {
-          'Distanza': '200m',
-          'Potenza Media': '915 W',
-          'Passo /500m': '1:12.2',
-          'Frequenza': '48 s/m'
-        }
-      },
-      {
-        id: '4',
-        sport: 'POWERLIFTING',
-        title: 'Coppa Lombardia FIPL Classic',
-        date: '2026-04-11',
-        location: 'Bergamo',
-        category: '-83 kg Senior',
-        result: '595 kg',
-        rank: 2,
-        total: 24,
-        pb: true,
-        notes: '9 valide su 9!',
-        details: {
-          'Squat': '210 kg',
-          'Panca Piana': '140 kg',
-          'Stacco da Terra': '245 kg',
-          'Punti GL / DOTS': '408.5'
-        }
-      }
-    ];
-
-    let currentUserKey = 'demo';
-    let races = [];
-    let activeFilter = 'ALL';
-
-    function storageKey() {
-      return 'athletehub_races_v3_' + currentUserKey;
-    }
-
-    function escapeHtml(str) {
-      return String(str || '').replace(/[&<>"']/g, m => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[m]));
-    }
-
-    function escapeAttr(str) {
-      return String(str || '').replace(/"/g, '&quot;');
-    }
-
-    function formatDate(dateStr) {
-      if (!dateStr) return '';
-      const parts = String(dateStr).split('-');
-      if (parts.length !== 3) return dateStr;
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-
-    function loadRaces() {
-      try {
-        const raw = localStorage.getItem(storageKey());
-        races = raw ? JSON.parse(raw) : DEFAULT_RACES.slice();
-      } catch (e) {
-        races = DEFAULT_RACES.slice();
-      }
-      renderKPIs();
-      renderFilters();
-      renderRaces();
-    }
-
-    function saveToStorage() {
-      try {
-        localStorage.setItem(storageKey(), JSON.stringify(races));
-      } catch (e) {}
-    }
-
-    function openApp(labelText, userKey) {
-      currentUserKey = userKey || 'demo';
-      document.getElementById('athlete-label').textContent = `${labelText} • Registro Gare & Competizioni Multisport`;
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('app-screen').classList.remove('hidden');
-      document.getElementById('app-screen').classList.add('flex');
-      loadRaces();
-    }
-
-    function switchAuthTab(tab) {
-      const loginForm = document.getElementById('login-form');
-      const registerForm = document.getElementById('register-form');
-      const tabLogin = document.getElementById('tab-login');
-      const tabRegister = document.getElementById('tab-register');
-      if (tab === 'login') {
-        loginForm.classList.remove('hidden');
-        registerForm.classList.add('hidden');
-        tabLogin.className = 'py-2.5 rounded-lg text-xs font-bold bg-zinc-800 text-white';
-        tabRegister.className = 'py-2.5 rounded-lg text-xs font-bold text-zinc-400';
-      } else {
-        registerForm.classList.remove('hidden');
-        loginForm.classList.add('hidden');
-        tabRegister.className = 'py-2.5 rounded-lg text-xs font-bold bg-zinc-800 text-white';
-        tabLogin.className = 'py-2.5 rounded-lg text-xs font-bold text-zinc-400';
-      }
-    }
-
-    function enterDemoMode() {
-      openApp('Modalità Demo', 'demo');
-    }
-
-    async function handleLoginAction(e) {
-      if (e && e.preventDefault) e.preventDefault();
-      const msg = document.getElementById('login-msg');
-      const email = (document.getElementById('login-email').value || '').trim();
-      const password = document.getElementById('login-password').value || '';
-
-      if (!email) {
-        openApp('Atleta', 'local_athlete');
-        return;
-      }
-
-      if (sb && password) {
-        try {
-          const { data, error } = await sb.auth.signInWithPassword({ email, password });
-          if (!error && data && data.user) {
-            const fullName = (data.user.user_metadata && data.user.user_metadata.full_name) || email;
-            openApp(fullName, data.user.id);
-            return;
-          }
-          if (error) {
-            msg.textContent = 'Accesso locale attivato (' + error.message + ').';
-            msg.classList.remove('hidden');
-          }
-        } catch (err) {
-          msg.textContent = 'Accesso locale attivato.';
-          msg.classList.remove('hidden');
-        }
-      }
-
-      openApp(email, email);
-    }
-
-    async function handleRegisterAction(e) {
-      if (e && e.preventDefault) e.preventDefault();
-      const msg = document.getElementById('reg-msg');
-      const name = (document.getElementById('reg-name').value || '').trim();
-      const email = (document.getElementById('reg-email').value || '').trim();
-      const password = document.getElementById('reg-password').value || '';
-
-      msg.className = 'text-xs text-emerald-400';
-      msg.textContent = 'Account pronto, ingresso in corso...';
-      msg.classList.remove('hidden');
-
-      if (sb && email && password.length >= 6) {
-        try {
-          await sb.auth.signUp({
-            email,
-            password,
-            options: { data: { full_name: name } }
-          });
-        } catch (err) {}
-      }
-
-      openApp(name || email || 'Atleta', email || name || 'local_athlete');
-    }
-
-    async function handleLogout() {
-      try { if (sb) await sb.auth.signOut(); } catch (e) {}
-      document.getElementById('app-screen').classList.add('hidden');
-      document.getElementById('app-screen').classList.remove('flex');
-      document.getElementById('auth-screen').classList.remove('hidden');
-    }
-
-    function renderKPIs() {
-      const totalRaces = races.length;
-      const podiums = races.filter(r => r.rank && r.rank <= 3).length;
-      const pbs = races.filter(r => r.pb).length;
-      const sportsCount = new Set(races.map(r => r.sport)).size;
-
-      const kpis = [
-        { label: 'Gare Disputate', value: totalRaces, sub: 'Totale storico', icon: '🏁', color: 'text-white' },
-        { label: 'Podi (Top 3)', value: podiums, sub: 'Medaglie conquistate', icon: '🥇', color: 'text-amber-400' },
-        { label: 'Personal Best', value: pbs, sub: 'Record personali', icon: '🔥', color: 'text-emerald-400' },
-        { label: 'Discipline', value: sportsCount, sub: 'Sport praticati', icon: '⚡', color: 'text-cyan-400' }
-      ];
-
-      document.getElementById('kpi-container').innerHTML = kpis.map(k => `
-        <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">${k.label}</p>
-            <p class="text-3xl font-black mt-1 ${k.color}">${k.value}</p>
-            <p class="text-xs text-zinc-500 mt-1">${k.sub}</p>
-          </div>
-          <div class="text-3xl bg-zinc-950 w-12 h-12 rounded-xl flex items-center justify-center border border-zinc-800/80">${k.icon}</div>
-        </div>
-      `).join('');
-    }
-
-    function renderFilters() {
-      const buttons = [
-        { key: 'ALL', label: 'Tutti gli Sport' },
-        ...Object.entries(SPORT_CONFIG).map(([key, cfg]) => ({ key, label: `${cfg.icon} ${cfg.label}` }))
-      ];
-
-      const el = document.getElementById('sport-filters');
-      el.innerHTML = buttons.map(b => {
-        const active = activeFilter === b.key;
-        return `
-          <button type="button" data-filter="${escapeAttr(b.key)}" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-            active
-              ? 'bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/20'
-              : 'bg-zinc-950 text-zinc-400 active:text-white border border-zinc-800'
-          }">
-            ${b.label}
-          </button>
-        `;
-      }).join('');
-
-      el.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          activeFilter = btn.getAttribute('data-filter');
-          renderFilters();
-          renderRaces();
-        });
-      });
-    }
-
-    function renderRaces() {
-      const query = (document.getElementById('search-input').value || '').toLowerCase();
-      const filtered = races
-        .filter(r => activeFilter === 'ALL' || r.sport === activeFilter)
-        .filter(r =>
-          (r.title || '').toLowerCase().includes(query) ||
-          (r.location && r.location.toLowerCase().includes(query)) ||
-          (r.notes && r.notes.toLowerCase().includes(query))
-        )
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      const grid = document.getElementById('races-grid');
-      if (filtered.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full text-center py-16 bg-zinc-900/40 rounded-2xl border border-dashed border-zinc-800">
-            <p class="text-zinc-400 font-semibold">Nessuna competizione trovata.</p>
-            <button type="button" id="btn-empty-new" class="mt-3 text-sm text-emerald-400 font-bold">+ Aggiungi la tua prima gara</button>
-          </div>
-        `;
-        const emptyBtn = document.getElementById('btn-empty-new');
-        if (emptyBtn) emptyBtn.addEventListener('click', openNewModal);
-        return;
-      }
-
-      grid.innerHTML = filtered.map(r => {
-        const cfg = SPORT_CONFIG[r.sport] || SPORT_CONFIG.RUNNING;
-        const topDetails = Object.entries(r.details || {}).slice(0, 2);
-
-        return `
-          <div data-race-id="${escapeAttr(r.id)}" class="race-card group bg-zinc-900/80 active:bg-zinc-900 border border-zinc-800 active:border-emerald-500/50 rounded-2xl p-5 transition cursor-pointer flex flex-col justify-between space-y-4 shadow-lg">
-            <div>
-              <div class="flex items-center justify-between gap-2 mb-3">
-                <span class="px-2.5 py-1 rounded-lg text-xs font-bold border ${cfg.bg} ${cfg.color} ${cfg.border}">${cfg.icon} ${cfg.label}</span>
-                <div class="flex items-center gap-1.5">
-                  ${r.pb ? '<span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30">🏆 PR</span>' : ''}
-                  ${r.rank ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-zinc-800 text-zinc-300">#${r.rank}${r.total ? '/' + r.total : ''}</span>` : ''}
-                </div>
-              </div>
-              <h3 class="text-lg font-extrabold text-white group-active:text-emerald-400 transition">${escapeHtml(r.title)}</h3>
-              <p class="text-xs text-zinc-400 mt-1">📅 ${formatDate(r.date)} ${r.location ? '• 📍 ' + escapeHtml(r.location) : ''}</p>
-            </div>
-
-            <div class="bg-zinc-950 rounded-xl p-3.5 border border-zinc-800/80 flex items-center justify-between gap-2">
-              <div>
-                <p class="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Risultato Ufficiale</p>
-                <p class="text-2xl font-black text-white tracking-tight">${escapeHtml(r.result)}</p>
-              </div>
-              <div class="text-right space-y-0.5">
-                ${topDetails.map(([k, v]) => `
-                  <p class="text-[11px] text-zinc-400"><span class="text-zinc-500">${escapeHtml(k)}:</span> <strong class="text-zinc-200">${escapeHtml(v)}</strong></p>
-                `).join('')}
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between text-xs text-zinc-500 pt-1">
-              <span>${escapeHtml(r.category || 'Categoria Open')}</span>
-              <span class="text-emerald-400 font-semibold">Scheda & Card →</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      grid.querySelectorAll('.race-card').forEach(card => {
-        card.addEventListener('click', () => {
-          openDetailModal(card.getAttribute('data-race-id'));
-        });
-      });
-    }
-
-    function syncPresetSelect() {
-      const sport = document.getElementById('form-sport').value;
-      const presetSel = document.getElementById('form-preset');
-      const opts = PRESETS_BY_SPORT[sport] || ['Gara non in elenco (scrivi nome sotto)'];
-      presetSel.innerHTML = opts.map(o => `<option value="${escapeAttr(o)}">${escapeHtml(o)}</option>`).join('');
-      updateCustomNamePlaceholder();
-    }
-
-    function updateCustomNamePlaceholder() {
-      const sport = document.getElementById('form-sport').value;
-      const preset = document.getElementById('form-preset').value;
-      const titleInput = document.getElementById('form-title');
-      if (sport === 'RUNNING' || preset.toLowerCase().includes('scrivi')) {
-        titleInput.placeholder = 'Scrivi qui il nome della gara (se non è in elenco)...';
-      } else {
-        titleInput.placeholder = `Opzionale: nome specifico o dettaglio (${preset})`;
-      }
-    }
-
-    function addExtraStationRow(keyVal = '', valVal = '') {
-      const list = document.getElementById('extra-stations-list');
-      const row = document.createElement('div');
-      row.className = 'grid grid-cols-12 gap-2 extra-station-row items-center';
-      row.innerHTML = `
-        <input type="text" value="${escapeAttr(keyVal)}" placeholder="Stazione / Split (es. Split 5km)" class="col-span-6 extra-key bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none" />
-        <input type="text" value="${escapeAttr(valVal)}" placeholder="Tempo / Dato" class="col-span-4 extra-val bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none" />
-        <button type="button" class="col-span-2 btn-rm-extra py-1.5 text-xs font-bold text-red-400 bg-zinc-900 border border-zinc-800 rounded-lg">✕</button>
-      `;
-      row.querySelector('.btn-rm-extra').addEventListener('click', () => row.remove());
-      list.appendChild(row);
-    }
-
-    function renderDynamicFields() {
-      const sport = document.getElementById('form-sport').value;
-      const container = document.getElementById('dynamic-fields-container');
-      const fields = SPORT_TEMPLATES[sport] || [];
-
-      container.innerHTML = `
-        <div class="flex items-center justify-between gap-2 flex-wrap">
-          <p class="text-xs font-bold uppercase tracking-wider text-emerald-400">Stazioni, Discipline & Parziali (${SPORT_CONFIG[sport].label})</p>
-          <button type="button" id="btn-add-extra" class="px-2.5 py-1 text-xs font-bold bg-zinc-900 active:bg-zinc-800 text-emerald-400 border border-zinc-700 rounded-lg">
-            + Aggiungi stazione / split
-          </button>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          ${fields.map(f => `
-            <div>
-              <label class="block text-[11px] font-semibold text-zinc-400 mb-1">${escapeHtml(f.key)}</label>
-              <input type="text" data-detail-key="${escapeAttr(f.key)}" placeholder="${escapeAttr(f.placeholder)}" class="detail-input w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none" />
-            </div>
-          `).join('')}
-        </div>
-        <div id="extra-stations-list" class="space-y-2 pt-1"></div>
-      `;
-
-      document.getElementById('btn-add-extra').addEventListener('click', () => addExtraStationRow());
-    }
-
-    function openNewModal() {
-      document.getElementById('race-form').reset();
-      document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
-      syncPresetSelect();
-      renderDynamicFields();
-      document.getElementById('new-modal').classList.remove('hidden');
-      document.getElementById('new-modal').classList.add('flex');
-    }
-
-    function closeNewModal() {
-      document.getElementById('new-modal').classList.add('hidden');
-      document.getElementById('new-modal').classList.remove('flex');
-    }
-
-    function saveRace(e) {
-      if (e && e.preventDefault) e.preventDefault();
-      const sport = document.getElementById('form-sport').value;
-      const preset = document.getElementById('form-preset').value;
-      const customTitle = (document.getElementById('form-title').value || '').trim();
-      const isWritePreset = preset.toLowerCase().includes('scrivi');
-      const finalTitle = customTitle || (!isWritePreset ? preset : SPORT_CONFIG[sport].label);
-
-      const details = {};
-      document.querySelectorAll('.detail-input').forEach(inp => {
-        if (inp.value.trim()) {
-          details[inp.dataset.detailKey] = inp.value.trim();
-        }
-      });
-      document.querySelectorAll('.extra-station-row').forEach(row => {
-        const k = (row.querySelector('.extra-key')?.value || '').trim();
-        const v = (row.querySelector('.extra-val')?.value || '').trim();
-        if (k || v) {
-          details[k || 'Split'] = v || '-';
-        }
-      });
-
-      const newRace = {
-        id: Date.now().toString(),
-        sport,
-        title: finalTitle,
-        date: document.getElementById('form-date').value,
-        location: (document.getElementById('form-location').value || '').trim(),
-        category: (document.getElementById('form-category').value || '').trim(),
-        result: (document.getElementById('form-result').value || '').trim(),
-        rank: parseInt(document.getElementById('form-rank').value, 10) || null,
-        total: parseInt(document.getElementById('form-total').value, 10) || null,
-        pb: document.getElementById('form-pb').checked,
-        notes: (document.getElementById('form-notes').value || '').trim(),
-        details
-      };
-
-      races.unshift(newRace);
-      saveToStorage();
-      closeNewModal();
-      renderKPIs();
-      renderRaces();
-    }
-
-    function openDetailModal(id) {
-      const r = races.find(item => item.id === id);
-      if (!r) return;
-      const cfg = SPORT_CONFIG[r.sport] || SPORT_CONFIG.RUNNING;
-      const detailEntries = Object.entries(r.details || {});
-
-      const el = document.getElementById('detail-content');
-      el.innerHTML = `
-        <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
-          <span class="px-3 py-1 rounded-lg text-xs font-bold border ${cfg.bg} ${cfg.color} ${cfg.border}">${cfg.icon} ${cfg.label}</span>
-          <button type="button" id="btn-close-detail-x" class="text-zinc-400 active:text-white text-2xl font-bold px-2">&times;</button>
-        </div>
-
-        <div class="rounded-2xl bg-gradient-to-br from-zinc-950 via-zinc-900 to-emerald-950/40 border border-emerald-500/30 p-6 shadow-xl">
-          <div class="flex justify-between items-start gap-2">
-            <div>
-              <p class="text-[11px] font-black tracking-widest uppercase text-emerald-400">ATHLETEHUB FINISHER CARD</p>
-              <h2 class="text-2xl sm:text-3xl font-black text-white mt-1">${escapeHtml(r.title)}</h2>
-              <p class="text-xs text-zinc-400 mt-1">📅 ${formatDate(r.date)} ${r.location ? '• 📍 ' + escapeHtml(r.location) : ''}</p>
-            </div>
-            ${r.pb ? '<span class="px-3 py-1 rounded-full text-xs font-black bg-amber-500 text-zinc-950 shadow-lg shrink-0">🏆 PERSONAL BEST</span>' : ''}
-          </div>
-
-          <div class="grid grid-cols-3 gap-4 mt-6 pt-5 border-t border-zinc-800/80">
-            <div>
-              <p class="text-[10px] uppercase text-zinc-400 font-bold">Tempo / Risultato</p>
-              <p class="text-2xl sm:text-3xl font-black text-emerald-400 mt-0.5">${escapeHtml(r.result)}</p>
-            </div>
-            <div>
-              <p class="text-[10px] uppercase text-zinc-400 font-bold">Classifica</p>
-              <p class="text-xl sm:text-2xl font-black text-white mt-0.5">${r.rank ? '#' + r.rank : '-'} <span class="text-xs font-normal text-zinc-400">${r.total ? '/ ' + r.total : ''}</span></p>
-            </div>
-            <div>
-              <p class="text-[10px] uppercase text-zinc-400 font-bold">Categoria</p>
-              <p class="text-sm sm:text-base font-bold text-zinc-200 mt-1.5">${escapeHtml(r.category || 'Open')}</p>
-            </div>
-          </div>
-        </div>
-
-        ${detailEntries.length > 0 ? `
-          <div>
-            <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3">Stazioni, Split & Dati Ufficiali</h4>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-              ${detailEntries.map(([k, v]) => `
-                <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-3">
-                  <p class="text-[11px] text-zinc-500">${escapeHtml(k)}</p>
-                  <p class="text-sm font-bold text-white mt-0.5">${escapeHtml(v)}</p>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        ` : ''}
-
-        ${r.notes ? `
-          <div class="bg-zinc-950/60 border border-zinc-800 rounded-xl p-4">
-            <p class="text-xs font-bold text-zinc-400 mb-1">📝 Note Gara</p>
-            <p class="text-sm text-zinc-300 leading-relaxed">${escapeHtml(r.notes)}</p>
-          </div>
-        ` : ''}
-
-        <div class="flex justify-between items-center pt-3 border-t border-zinc-800">
-          <button type="button" id="btn-delete-race" class="text-xs font-bold text-red-400 active:text-red-300">🗑️ Elimina Gara</button>
-          <button type="button" id="btn-close-detail" class="px-5 py-2 rounded-xl text-sm font-bold bg-zinc-800 active:bg-zinc-700 text-white">Chiudi</button>
-        </div>
-      `;
-
-      document.getElementById('btn-close-detail-x').addEventListener('click', closeDetailModal);
-      document.getElementById('btn-close-detail').addEventListener('click', closeDetailModal);
-      document.getElementById('btn-delete-race').addEventListener('click', () => {
-        races = races.filter(item => item.id !== r.id);
-        saveToStorage();
-        closeDetailModal();
-        renderKPIs();
-        renderRaces();
-      });
-
-      document.getElementById('detail-modal').classList.remove('hidden');
-      document.getElementById('detail-modal').classList.add('flex');
-    }
-
-    function closeDetailModal() {
-      document.getElementById('detail-modal').classList.add('hidden');
-      document.getElementById('detail-modal').classList.remove('flex');
-    }
-
-    function exportData() {
-      const dataStr = JSON.stringify(races, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `AthleteHub_Backup_${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function importData(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (Array.isArray(imported)) {
-            races = imported;
-            saveToStorage();
-            renderKPIs();
-            renderRaces();
-          }
-        } catch (err) {}
-      };
-      reader.readAsText(file);
-    }
-
-    // Event bindings diretti
-    document.getElementById('tab-login').addEventListener('click', () => switchAuthTab('login'));
-    document.getElementById('tab-register').addEventListener('click', () => switchAuthTab('register'));
-    document.getElementById('login-form').addEventListener('submit', handleLoginAction);
-    document.getElementById('btn-login-submit').addEventListener('click', handleLoginAction);
-    document.getElementById('register-form').addEventListener('submit', handleRegisterAction);
-    document.getElementById('btn-register-submit').addEventListener('click', handleRegisterAction);
-    document.getElementById('btn-demo').addEventListener('click', enterDemoMode);
-
-    document.getElementById('btn-open-new').addEventListener('click', openNewModal);
-    document.getElementById('btn-close-new').addEventListener('click', closeNewModal);
-    document.getElementById('btn-cancel-new').addEventListener('click', closeNewModal);
-    document.getElementById('race-form').addEventListener('submit', saveRace);
-    document.getElementById('btn-logout').addEventListener('click', handleLogout);
-    document.getElementById('btn-export').addEventListener('click', exportData);
-    document.getElementById('input-import').addEventListener('change', importData);
-    document.getElementById('search-input').addEventListener('input', renderRaces);
-    document.getElementById('form-sport').addEventListener('change', () => {
-      syncPresetSelect();
-      renderDynamicFields();
-    });
-    document.getElementById('form-preset').addEventListener('change', updateCustomNamePlaceholder);
-  </script>
-</body>
-</html>
+      DEADLY_DOZEN:    
